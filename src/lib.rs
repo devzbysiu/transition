@@ -36,8 +36,9 @@ impl From<&str> for Transition {
 }
 
 impl Transition {
-    pub fn go(self) -> Result<Sender<Msg>, failure::Error> {
+    pub fn run(self) -> Result<Transmitter, failure::Error> {
         let (sender, receiver) = unbounded();
+        let no_transitions = self.transition.len();
         thread::spawn(move || -> Result<usize, failure::Error> {
             loop {
                 match receiver.try_recv() {
@@ -48,7 +49,8 @@ impl Transition {
                 self.play_transition();
             }
         });
-        Ok(sender)
+        let duration = Duration::from_millis(500 * no_transitions as u64 + 50);
+        Ok(Transmitter { sender, duration })
     }
 
     fn send_success_msg(&self) -> Result<usize, failure::Error> {
@@ -89,4 +91,23 @@ impl Transition {
 pub enum Msg {
     Success,
     Failure,
+}
+
+pub struct Transmitter {
+    sender: Sender<Msg>,
+    duration: Duration,
+}
+
+impl Transmitter {
+    pub fn notify_success(&self) -> Result<(), failure::Error> {
+        self.sender.send(Msg::Success)?;
+        std::thread::sleep(Duration::from_secs(2));
+        Ok(())
+    }
+
+    pub fn notify_failure(&self) -> Result<(), failure::Error> {
+        self.sender.send(Msg::Failure)?;
+        std::thread::sleep(Duration::from_secs(2));
+        Ok(())
+    }
 }
