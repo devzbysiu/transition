@@ -101,13 +101,13 @@ pub struct Transmitter {
 impl Transmitter {
     pub fn notify_success(&self) -> Result<(), failure::Error> {
         self.sender.send(Msg::Success)?;
-        std::thread::sleep(Duration::from_secs(2));
+        thread::sleep(self.duration);
         Ok(())
     }
 
     pub fn notify_failure(&self) -> Result<(), failure::Error> {
         self.sender.send(Msg::Failure)?;
-        std::thread::sleep(Duration::from_secs(2));
+        thread::sleep(self.duration);
         Ok(())
     }
 }
