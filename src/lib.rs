@@ -15,14 +15,14 @@ pub struct Transition {
     failure_msg: Option<Message>,
 }
 
-impl From<&str> for Transition {
-    fn from(colors: &str) -> Self {
+impl From<&Vec<String>> for Transition {
+    fn from(colors: &Vec<String>) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
         let mut transition = Vec::new();
-        for color_name in colors.split(' ') {
+        for color_name in colors {
             transition.push(Message::Fade(
-                Color::from(color_name),
+                Color::from(color_name.as_str()),
                 Duration::from_millis(500),
             ));
         }
@@ -36,7 +36,7 @@ impl From<&str> for Transition {
 }
 
 impl Transition {
-    pub fn run(self) -> Result<Transmitter, failure::Error> {
+    pub fn start(self) -> Result<Transmitter, failure::Error> {
         let (sender, receiver) = unbounded();
         let no_transitions = self.transition.len();
         thread::spawn(move || -> Result<usize, failure::Error> {
