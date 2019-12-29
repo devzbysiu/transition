@@ -16,6 +16,7 @@ pub struct Transition {
 }
 
 impl From<&Vec<String>> for Transition {
+    #[must_use]
     fn from(colors: &Vec<String>) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
@@ -26,7 +27,7 @@ impl From<&Vec<String>> for Transition {
                 Duration::from_millis(500),
             ));
         }
-        Transition {
+        Self {
             blinkers,
             transition,
             success_msg: None,
@@ -55,18 +56,14 @@ impl Transition {
 
     fn send_success_msg(&self) -> Result<usize, failure::Error> {
         self.blinkers
-            .send(self.success_msg.unwrap_or(self.color_msg("green")))?;
+            .send(self.success_msg.unwrap_or_else(|| color_msg("green")))?;
         Ok(NOT_IMPORTANT)
-    }
-
-    fn color_msg(&self, color_name: &str) -> Message {
-        Message::Fade(Color::from(color_name), Duration::from_millis(500))
     }
 
     fn send_failure_msg(&self) -> Result<usize, failure::Error> {
         println!("blinking with failure");
         self.blinkers
-            .send(self.failure_msg.unwrap_or(self.color_msg("red")))?;
+            .send(self.failure_msg.unwrap_or_else(|| color_msg("red")))?;
         Ok(NOT_IMPORTANT)
     }
 
@@ -77,13 +74,15 @@ impl Transition {
         }
     }
 
+    #[must_use]
     pub fn on_success(mut self, color_name: &str) -> Self {
-        self.success_msg = Some(self.color_msg(color_name));
+        self.success_msg = Some(color_msg(color_name));
         self
     }
 
+    #[must_use]
     pub fn on_failure(mut self, color_name: &str) -> Self {
-        self.failure_msg = Some(self.color_msg(color_name));
+        self.failure_msg = Some(color_msg(color_name));
         self
     }
 }
@@ -110,4 +109,8 @@ impl Transmitter {
         thread::sleep(self.duration);
         Ok(())
     }
+}
+
+fn color_msg(color_name: &str) -> Message {
+    Message::Fade(Color::from(color_name), Duration::from_millis(500))
 }
