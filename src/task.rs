@@ -7,7 +7,7 @@ pub trait Task: Send + Sync {
     fn execute(&self) -> Result<(), failure::Error>;
 }
 
-pub struct Simple {
+pub(crate) struct Simple {
     blinkers: Blinkers,
     transition: Vec<Message>,
 }

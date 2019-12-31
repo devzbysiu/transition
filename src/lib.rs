@@ -4,6 +4,7 @@ use blinkrs::Message;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use log::debug;
+use log::error;
 use log::info;
 use std::thread;
 use std::time::Duration;
@@ -13,19 +14,24 @@ mod task;
 const NOT_IMPORTANT: usize = 0;
 
 pub struct Transition<T: Task + 'static> {
-    task: &'static T,
+    task: Option<&'static T>,
     success_msg: Option<Message>,
     failure_msg: Option<Message>,
 }
 
 impl<T: Task + Send + 'static> Transition<T> {
     #[must_use]
-    pub fn new(task: &'static T) -> Self {
+    pub fn new() -> Self {
         Self {
-            task,
+            task: None,
             success_msg: None,
             failure_msg: None,
         }
+    }
+
+    pub fn with_task(mut self, task: &'static T) -> Self {
+        self.task = Some(task);
+        self
     }
 
     pub fn start(self) -> Result<Transmitter, failure::Error> {
@@ -45,8 +51,12 @@ impl<T: Task + Send + 'static> Transition<T> {
                     }
                     Err(_) => info!("no message received"),
                 };
-                debug!("executing a task");
-                self.task.execute()?;
+                if let Some(task) = self.task {
+                    debug!("executing task");
+                    task.execute()?;
+                } else {
+                    error!("not task was found");
+                }
             }
         });
         Ok(Transmitter { sender })
@@ -75,6 +85,13 @@ impl<T: Task + Send + 'static> Transition<T> {
     pub fn on_failure(mut self, color_name: &str) -> Self {
         self.failure_msg = Some(color_msg(color_name));
         self
+    }
+}
+
+impl<T: Task> Default for Transition<T> {
+    #[must_use]
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -123,7 +140,7 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let _transition: Transition<TaskSpy> = Transition::new(&task);
+        let _transition: Transition<TaskSpy> = Transition::new().with_task(&task);
 
         assert_eq!(false, task.executed());
         Ok(())
@@ -136,7 +153,7 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let transition: Transition<TaskSpy> = Transition::new(&task);
+        let transition: Transition<TaskSpy> = Transition::new().with_task(&task);
 
         transition.start()?;
         std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
