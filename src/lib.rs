@@ -76,12 +76,6 @@ impl<T: Task + Send + 'static> Transition<T> {
         Ok(NOT_IMPORTANT)
     }
 
-    #[allow(dead_code)]
-    fn with_task(mut self, task: &'static T) -> Self {
-        self.task = Some(task);
-        self
-    }
-
     #[must_use]
     pub fn on_success(mut self, color_name: &str) -> Self {
         self.success_msg = Some(color_msg(color_name));
@@ -147,7 +141,11 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let _transition: Transition<TaskSpy> = Transition::new().with_task(&task);
+        let _transition: Transition<TaskSpy> = Transition {
+            task: Some(&task),
+            failure_msg: None,
+            success_msg: None,
+        };
 
         assert_eq!(false, task.executed());
         Ok(())
@@ -160,7 +158,11 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let transition: Transition<TaskSpy> = Transition::new().with_task(&task);
+        let transition: Transition<TaskSpy> = Transition {
+            task: Some(&task),
+            failure_msg: None,
+            success_msg: None,
+        };
 
         transition.start()?;
         std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
