@@ -136,9 +136,8 @@ mod test {
             static ref task: TaskSpy = TaskSpy::new();
         }
         let transition: Transition<TaskSpy> = Transition::new(&task);
-        let tx = transition.start()?;
+        transition.start()?;
         std::thread::sleep(Duration::from_millis(500)); // allow transition to execute
-        tx.notify_success()?;
         assert_eq!(true, task.executed());
         Ok(())
     }
