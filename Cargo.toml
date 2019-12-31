@@ -8,3 +8,9 @@ edition = "2018"
 blinkrs = "0.2.1"
 failure = "0.1.6"
 crossbeam-channel = "0.4.0"
+lazy_static = "1.4.0"
+log = "0.4.8"
+env_logger = "0.7.1"
+
+[dev-dependencies]
+env_logger = "0.7.1"

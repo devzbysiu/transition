@@ -3,7 +3,7 @@ use blinkrs::Color;
 use blinkrs::Message;
 use std::time::Duration;
 
-pub trait Task {
+pub trait Task: Send + Sync {
     fn execute(&self) -> Result<(), failure::Error>;
 }
 

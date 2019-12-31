@@ -3,6 +3,8 @@ use blinkrs::Color;
 use blinkrs::Message;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
+use log::debug;
+use log::info;
 use std::thread;
 use std::time::Duration;
 
@@ -10,15 +12,15 @@ mod task;
 
 const NOT_IMPORTANT: usize = 0;
 
-pub struct Transition<T: Task> {
-    task: T,
+pub struct Transition<T: Task + 'static> {
+    task: &'static T,
     success_msg: Option<Message>,
     failure_msg: Option<Message>,
 }
 
 impl<T: Task + Send + 'static> Transition<T> {
     #[must_use]
-    pub fn new(task: T) -> Self {
+    pub fn new(task: &'static T) -> Self {
         Self {
             task,
             success_msg: None,
@@ -27,14 +29,23 @@ impl<T: Task + Send + 'static> Transition<T> {
     }
 
     pub fn start(self) -> Result<Transmitter, failure::Error> {
+        debug!("starting transition");
         let (sender, receiver) = unbounded();
+        debug!("starting thread with task to execute");
         thread::spawn(move || -> Result<usize, failure::Error> {
             loop {
                 match receiver.try_recv() {
-                    Ok(Msg::Success) => break Self::send_success_msg(),
-                    Ok(Msg::Failure) => break Self::send_failure_msg(),
-                    Err(_) => {}
+                    Ok(Msg::Success) => {
+                        debug!("received success, breaking with success message");
+                        break Self::send_success_msg();
+                    }
+                    Ok(Msg::Failure) => {
+                        debug!("received failure, breaking with failure message");
+                        break Self::send_failure_msg();
+                    }
+                    Err(_) => info!("no message received"),
                 };
+                debug!("executing a task");
                 self.task.execute()?;
             }
         });
@@ -78,11 +89,13 @@ pub struct Transmitter {
 
 impl Transmitter {
     pub fn notify_success(&self) -> Result<(), failure::Error> {
+        debug!("notifying about success");
         self.sender.send(Msg::Success)?;
         Ok(())
     }
 
     pub fn notify_failure(&self) -> Result<(), failure::Error> {
+        debug!("notifying about failure");
         self.sender.send(Msg::Failure)?;
         Ok(())
     }
@@ -95,36 +108,60 @@ fn color_msg(color_name: &str) -> Message {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::cell::RefCell;
+    use lazy_static::lazy_static;
+    use std::sync::atomic::AtomicBool;
+    use std::sync::atomic::Ordering;
+
+    fn init_logging() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
 
     #[test]
-    fn test() -> Result<(), failure::Error> {
-        let task = TaskSpy::new();
-        let transition: Transition<TaskSpy> = Transition::new(task);
-        transition.start()?;
-        assert_eq!(true, task.task_executed());
+    #[allow(non_upper_case_globals)]
+    fn test_task_not_executed_when_transition_not_started() -> Result<(), failure::Error> {
+        init_logging();
+        lazy_static! {
+            static ref task: TaskSpy = TaskSpy::new();
+        }
+        let _transition: Transition<TaskSpy> = Transition::new(&task);
+        assert_eq!(false, task.executed());
+        Ok(())
+    }
+
+    #[test]
+    #[allow(non_upper_case_globals)]
+    fn test_task_was_executed_when_after_transition_start() -> Result<(), failure::Error> {
+        init_logging();
+        lazy_static! {
+            static ref task: TaskSpy = TaskSpy::new();
+        }
+        let transition: Transition<TaskSpy> = Transition::new(&task);
+        let tx = transition.start()?;
+        std::thread::sleep(Duration::from_millis(500)); // allow transition to execute
+        tx.notify_success()?;
+        assert_eq!(true, task.executed());
         Ok(())
     }
 
     struct TaskSpy {
-        task_executed: RefCell<bool>,
+        task_executed: AtomicBool,
     }
 
     impl TaskSpy {
         fn new() -> Self {
             Self {
-                task_executed: RefCell::new(false),
+                task_executed: AtomicBool::new(false),
             }
         }
 
-        fn task_executed(self) -> bool {
-            self.task_executed.into_inner()
+        fn executed(&self) -> bool {
+            self.task_executed.load(Ordering::SeqCst)
         }
     }
 
     impl Task for TaskSpy {
         fn execute(&self) -> Result<(), failure::Error> {
-            self.task_executed.replace(false);
+            self.task_executed.store(true, Ordering::SeqCst);
             Ok(())
         }
     }
