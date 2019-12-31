@@ -1,15 +1,20 @@
+use crate::task::Simple;
 use crate::task::Task;
 use blinkrs::Color;
 use blinkrs::Message;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
+use lazy_static::lazy_static;
 use log::debug;
-use log::error;
 use log::info;
 use std::thread;
 use std::time::Duration;
 
 mod task;
+
+lazy_static! {
+    static ref DEFAULT_TASK: Simple = Simple::new(&["blue", "white"]);
+}
 
 const NOT_IMPORTANT: usize = 0;
 
@@ -50,7 +55,8 @@ impl<T: Task + Send + 'static> Transition<T> {
                     debug!("executing task");
                     task.execute()?;
                 } else {
-                    error!("not task was found");
+                    debug!("executing default task");
+                    DEFAULT_TASK.execute()?;
                 }
             }
         });
@@ -70,7 +76,8 @@ impl<T: Task + Send + 'static> Transition<T> {
         Ok(NOT_IMPORTANT)
     }
 
-    pub fn with_task(mut self, task: &'static T) -> Self {
+    #[allow(dead_code)]
+    fn with_task(mut self, task: &'static T) -> Self {
         self.task = Some(task);
         self
     }
