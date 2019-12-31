@@ -130,7 +130,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_was_executed_when_after_transition_start() -> Result<(), failure::Error> {
+    fn test_task_was_executed_after_transition_start() -> Result<(), failure::Error> {
         init_logging();
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
