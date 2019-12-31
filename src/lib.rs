@@ -10,28 +10,15 @@ const NOT_IMPORTANT: usize = 0;
 
 pub struct Transition<T: Task> {
     task: T,
-    blinkers: Blinkers,
-    transition: Vec<Message>,
     success_msg: Option<Message>,
     failure_msg: Option<Message>,
 }
 
 impl<T: Task + Send + 'static> Transition<T> {
     #[must_use]
-    pub fn new(colors: &[&str], task: T) -> Self {
-        let blinkers: Blinkers =
-            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
-        let mut transition = Vec::new();
-        for &color_name in colors {
-            transition.push(Message::Fade(
-                Color::from(color_name),
-                Duration::from_millis(500),
-            ));
-        }
+    pub fn new(task: T) -> Self {
         Self {
             task,
-            blinkers,
-            transition,
             success_msg: None,
             failure_msg: None,
         }
@@ -39,40 +26,30 @@ impl<T: Task + Send + 'static> Transition<T> {
 
     pub fn start(self) -> Result<Transmitter, failure::Error> {
         let (sender, receiver) = unbounded();
-        let no_transitions = self.transition.len();
         thread::spawn(move || -> Result<usize, failure::Error> {
             loop {
                 match receiver.try_recv() {
-                    Ok(Msg::Success) => break self.send_success_msg(),
-                    Ok(Msg::Failure) => break self.send_failure_msg(),
+                    Ok(Msg::Success) => break Self::send_success_msg(),
+                    Ok(Msg::Failure) => break Self::send_failure_msg(),
                     Err(_) => {}
                 };
                 self.task.execute()?;
-                self.play_transition();
             }
         });
-        let duration = Duration::from_millis(500 * no_transitions as u64 + 50);
-        Ok(Transmitter { sender, duration })
+        Ok(Transmitter { sender })
     }
 
-    fn send_success_msg(&self) -> Result<usize, failure::Error> {
-        self.blinkers
-            .send(self.success_msg.unwrap_or_else(|| color_msg("green")))?;
+    fn send_success_msg() -> Result<usize, failure::Error> {
+        // self.blinkers
+        // .send(self.success_msg.unwrap_or_else(|| color_msg("green")))?;
         Ok(NOT_IMPORTANT)
     }
 
-    fn send_failure_msg(&self) -> Result<usize, failure::Error> {
+    fn send_failure_msg() -> Result<usize, failure::Error> {
         println!("blinking with failure");
-        self.blinkers
-            .send(self.failure_msg.unwrap_or_else(|| color_msg("red")))?;
+        // self.blinkers
+        // .send(self.failure_msg.unwrap_or_else(|| color_msg("red")))?;
         Ok(NOT_IMPORTANT)
-    }
-
-    fn play_transition(&self) {
-        for &message in &self.transition {
-            self.blinkers.send(message).unwrap();
-            std::thread::sleep(Duration::from_millis(500));
-        }
     }
 
     #[must_use]
@@ -92,10 +69,40 @@ pub trait Task {
     fn execute(&self) -> Result<(), failure::Error>;
 }
 
-pub struct SimpleTask;
+pub struct SimpleTask {
+    blinkers: Blinkers,
+    transition: Vec<Message>,
+}
+
+impl SimpleTask {
+    #[must_use]
+    pub fn new(colors: &[&str]) -> Self {
+        let mut transition = Vec::new();
+        let blinkers: Blinkers =
+            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
+        for &color_name in colors {
+            transition.push(Message::Fade(
+                Color::from(color_name),
+                Duration::from_millis(500),
+            ));
+        }
+        Self {
+            blinkers,
+            transition,
+        }
+    }
+
+    fn play_transition(&self) {
+        for &message in &self.transition {
+            self.blinkers.send(message).unwrap();
+            std::thread::sleep(Duration::from_millis(500));
+        }
+    }
+}
 
 impl Task for SimpleTask {
     fn execute(&self) -> Result<(), failure::Error> {
+        self.play_transition();
         Ok(())
     }
 }
@@ -107,19 +114,16 @@ pub enum Msg {
 
 pub struct Transmitter {
     sender: Sender<Msg>,
-    duration: Duration,
 }
 
 impl Transmitter {
     pub fn notify_success(&self) -> Result<(), failure::Error> {
         self.sender.send(Msg::Success)?;
-        thread::sleep(self.duration);
         Ok(())
     }
 
     pub fn notify_failure(&self) -> Result<(), failure::Error> {
         self.sender.send(Msg::Failure)?;
-        thread::sleep(self.duration);
         Ok(())
     }
 }
@@ -134,7 +138,8 @@ mod test {
 
     #[test]
     fn test() -> Result<(), failure::Error> {
-        let _transition: Transition<SimpleTask> = Transition::new(&["blue", "white"], SimpleTask);
+        let _transition: Transition<SimpleTask> =
+            Transition::new(SimpleTask::new(&["blue", "white"]));
         Ok(())
     }
 }
