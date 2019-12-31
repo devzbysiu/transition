@@ -1,10 +1,12 @@
-use blinkrs::Blinkers;
+use crate::task::Task;
 use blinkrs::Color;
 use blinkrs::Message;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use std::thread;
 use std::time::Duration;
+
+mod task;
 
 const NOT_IMPORTANT: usize = 0;
 
@@ -65,48 +67,6 @@ impl<T: Task + Send + 'static> Transition<T> {
     }
 }
 
-pub trait Task {
-    fn execute(&self) -> Result<(), failure::Error>;
-}
-
-pub struct SimpleTask {
-    blinkers: Blinkers,
-    transition: Vec<Message>,
-}
-
-impl SimpleTask {
-    #[must_use]
-    pub fn new(colors: &[&str]) -> Self {
-        let mut transition = Vec::new();
-        let blinkers: Blinkers =
-            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
-        for &color_name in colors {
-            transition.push(Message::Fade(
-                Color::from(color_name),
-                Duration::from_millis(500),
-            ));
-        }
-        Self {
-            blinkers,
-            transition,
-        }
-    }
-
-    fn play_transition(&self) {
-        for &message in &self.transition {
-            self.blinkers.send(message).unwrap();
-            std::thread::sleep(Duration::from_millis(500));
-        }
-    }
-}
-
-impl Task for SimpleTask {
-    fn execute(&self) -> Result<(), failure::Error> {
-        self.play_transition();
-        Ok(())
-    }
-}
-
 pub enum Msg {
     Success,
     Failure,
@@ -135,11 +95,11 @@ fn color_msg(color_name: &str) -> Message {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::task::Simple;
 
     #[test]
     fn test() -> Result<(), failure::Error> {
-        let _transition: Transition<SimpleTask> =
-            Transition::new(SimpleTask::new(&["blue", "white"]));
+        let _transition: Transition<Simple> = Transition::new(Simple::new(&["blue", "white"]));
         Ok(())
     }
 }
