@@ -124,6 +124,7 @@ mod test {
             static ref task: TaskSpy = TaskSpy::new();
         }
         let _transition: Transition<TaskSpy> = Transition::new(&task);
+
         assert_eq!(false, task.executed());
         Ok(())
     }
@@ -136,8 +137,10 @@ mod test {
             static ref task: TaskSpy = TaskSpy::new();
         }
         let transition: Transition<TaskSpy> = Transition::new(&task);
+
         transition.start()?;
-        std::thread::sleep(Duration::from_millis(500)); // allow transition to execute
+        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+
         assert_eq!(true, task.executed());
         Ok(())
     }
