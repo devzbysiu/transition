@@ -29,11 +29,6 @@ impl<T: Task + Send + 'static> Transition<T> {
         }
     }
 
-    pub fn with_task(mut self, task: &'static T) -> Self {
-        self.task = Some(task);
-        self
-    }
-
     pub fn start(self) -> Result<Transmitter, failure::Error> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
@@ -75,6 +70,11 @@ impl<T: Task + Send + 'static> Transition<T> {
         Ok(NOT_IMPORTANT)
     }
 
+    pub fn with_task(mut self, task: &'static T) -> Self {
+        self.task = Some(task);
+        self
+    }
+
     #[must_use]
     pub fn on_success(mut self, color_name: &str) -> Self {
         self.success_msg = Some(color_msg(color_name));
@@ -95,7 +95,7 @@ impl<T: Task> Default for Transition<T> {
     }
 }
 
-pub enum Msg {
+enum Msg {
     Success,
     Failure,
 }
