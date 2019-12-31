@@ -95,11 +95,37 @@ fn color_msg(color_name: &str) -> Message {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::task::Simple;
+    use std::cell::RefCell;
 
     #[test]
     fn test() -> Result<(), failure::Error> {
-        let _transition: Transition<Simple> = Transition::new(Simple::new(&["blue", "white"]));
+        let task = TaskSpy::new();
+        let transition: Transition<TaskSpy> = Transition::new(task);
+        transition.start()?;
+        assert_eq!(true, task.task_executed());
         Ok(())
+    }
+
+    struct TaskSpy {
+        task_executed: RefCell<bool>,
+    }
+
+    impl TaskSpy {
+        fn new() -> Self {
+            Self {
+                task_executed: RefCell::new(false),
+            }
+        }
+
+        fn task_executed(self) -> bool {
+            self.task_executed.into_inner()
+        }
+    }
+
+    impl Task for TaskSpy {
+        fn execute(&self) -> Result<(), failure::Error> {
+            self.task_executed.replace(false);
+            Ok(())
+        }
     }
 }
