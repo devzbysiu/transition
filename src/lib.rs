@@ -8,35 +8,35 @@ use std::time::Duration;
 
 const NOT_IMPORTANT: usize = 0;
 
-pub struct Transition {
+pub struct Transition<T: Task> {
+    task: T,
     blinkers: Blinkers,
     transition: Vec<Message>,
     success_msg: Option<Message>,
     failure_msg: Option<Message>,
 }
 
-impl From<&Vec<String>> for Transition {
+impl<T: Task + Send + 'static> Transition<T> {
     #[must_use]
-    fn from(colors: &Vec<String>) -> Self {
+    pub fn new(colors: &[&str], task: T) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
         let mut transition = Vec::new();
-        for color_name in colors {
+        for &color_name in colors {
             transition.push(Message::Fade(
-                Color::from(color_name.as_str()),
+                Color::from(color_name),
                 Duration::from_millis(500),
             ));
         }
         Self {
+            task,
             blinkers,
             transition,
             success_msg: None,
             failure_msg: None,
         }
     }
-}
 
-impl Transition {
     pub fn start(self) -> Result<Transmitter, failure::Error> {
         let (sender, receiver) = unbounded();
         let no_transitions = self.transition.len();
@@ -47,6 +47,7 @@ impl Transition {
                     Ok(Msg::Failure) => break self.send_failure_msg(),
                     Err(_) => {}
                 };
+                self.task.execute()?;
                 self.play_transition();
             }
         });
@@ -87,6 +88,18 @@ impl Transition {
     }
 }
 
+pub trait Task {
+    fn execute(&self) -> Result<(), failure::Error>;
+}
+
+pub struct SimpleTask;
+
+impl Task for SimpleTask {
+    fn execute(&self) -> Result<(), failure::Error> {
+        Ok(())
+    }
+}
+
 pub enum Msg {
     Success,
     Failure,
@@ -113,4 +126,15 @@ impl Transmitter {
 
 fn color_msg(color_name: &str) -> Message {
     Message::Fade(Color::from(color_name), Duration::from_millis(500))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test() -> Result<(), failure::Error> {
+        let _transition: Transition<SimpleTask> = Transition::new(&["blue", "white"], SimpleTask);
+        Ok(())
+    }
 }
