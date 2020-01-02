@@ -113,8 +113,8 @@ mod test {
     use super::*;
     use lazy_static::lazy_static;
     use std::time::Duration;
-    use testutils::MessageSpy;
-    use testutils::TaskSpy;
+    use testutils::utils::MessageSpy;
+    use testutils::utils::TaskSpy;
 
     fn init_logging() {
         let _ = env_logger::builder().is_test(true).try_init();
