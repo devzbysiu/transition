@@ -6,6 +6,7 @@ use log::debug;
 use log::error;
 use log::info;
 use std::thread;
+use std::thread::JoinHandle;
 
 mod messg;
 mod task;
@@ -34,17 +35,15 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
-        thread::spawn(move || -> Result<(), failure::Error> {
-            loop {
-                match receiver.try_recv() {
-                    Ok(Msg::Success) => break self.send_success_msg(),
-                    Ok(Msg::Failure) => break self.send_failure_msg(),
-                    Err(_) => info!("no message received"),
-                };
-                self.execute_task_if_present()?;
-            }
+        let handle = thread::spawn(move || loop {
+            match receiver.try_recv() {
+                Ok(Msg::Success) => break self.send_success_msg(),
+                Ok(Msg::Failure) => break self.send_failure_msg(),
+                Err(_) => info!("no message received"),
+            };
+            self.execute_task_if_present()?;
         });
-        Ok(Transmitter { sender })
+        Ok(Transmitter { sender, handle })
     }
 
     fn send_success_msg(&self) -> Result<(), failure::Error> {
@@ -92,18 +91,21 @@ enum Msg {
 
 pub struct Transmitter {
     sender: Sender<Msg>,
+    handle: JoinHandle<Result<(), failure::Error>>,
 }
 
 impl Transmitter {
-    pub fn notify_success(&self) -> Result<(), failure::Error> {
+    pub fn notify_success(self) -> Result<(), failure::Error> {
         debug!("notifying about success");
         self.sender.send(Msg::Success)?;
+        self.handle.join().expect("cannot joing thread")?;
         Ok(())
     }
 
-    pub fn notify_failure(&self) -> Result<(), failure::Error> {
+    pub fn notify_failure(self) -> Result<(), failure::Error> {
         debug!("notifying about failure");
         self.sender.send(Msg::Failure)?;
+        self.handle.join().expect("cannot joing thread")?;
         Ok(())
     }
 }
@@ -133,7 +135,7 @@ mod test {
             success_msg: None,
         };
 
-        assert_eq!(false, task.executed());
+        assert_eq!(false, task.executed(), "Test task was executed");
         Ok(())
     }
 
@@ -151,61 +153,59 @@ mod test {
         };
 
         transition.start()?;
-        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+        std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
 
-        assert_eq!(true, task.executed());
+        assert_eq!(true, task.executed(), "Test task was executed");
         Ok(())
     }
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_failure_msg_was_send_when_failure_notified() -> Result<(), failure::Error> {
+    fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), failure::Error> {
         init_logging();
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
-            static ref failure_message: MessageSpy = MessageSpy::new();
-            static ref success_message: MessageSpy = MessageSpy::new();
+            static ref failure_msg: MessageSpy = MessageSpy::new();
+            static ref success_msg: MessageSpy = MessageSpy::new();
         }
         let transition: Transition<TaskSpy, MessageSpy> = Transition {
             task: Some(&task),
-            failure_msg: Some(&failure_message),
-            success_msg: Some(&success_message),
+            failure_msg: Some(&failure_msg),
+            success_msg: Some(&success_msg),
         };
 
         let tx = transition.start()?;
-        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+        std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
         tx.notify_failure()?;
-        std::thread::sleep(Duration::from_millis(1)); // allow message to be sent
 
-        assert_eq!(true, task.executed());
-        assert_eq!(true, failure_message.message_sent());
-        assert_eq!(false, success_message.message_sent());
+        assert_eq!(true, task.executed(), "Test task was executed");
+        assert_eq!(true, failure_msg.msg_sent(), "Test failure WAS sent");
+        assert_eq!(false, success_msg.msg_sent(), "Test success NOT sent");
         Ok(())
     }
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_success_msg_was_send_when_success_notified() -> Result<(), failure::Error> {
+    fn test_success_msg_was_sent_when_success_notified() -> Result<(), failure::Error> {
         init_logging();
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
-            static ref failure_message: MessageSpy = MessageSpy::new();
-            static ref success_message: MessageSpy = MessageSpy::new();
+            static ref failure_msg: MessageSpy = MessageSpy::new();
+            static ref success_msg: MessageSpy = MessageSpy::new();
         }
         let transition: Transition<TaskSpy, MessageSpy> = Transition {
             task: Some(&task),
-            failure_msg: Some(&failure_message),
-            success_msg: Some(&success_message),
+            failure_msg: Some(&failure_msg),
+            success_msg: Some(&success_msg),
         };
 
         let tx = transition.start()?;
-        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+        std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
         tx.notify_success()?;
-        std::thread::sleep(Duration::from_millis(1)); // allow message to be sent
 
-        assert_eq!(true, task.executed());
-        assert_eq!(false, failure_message.message_sent());
-        assert_eq!(true, success_message.message_sent());
+        assert_eq!(true, task.executed(), "Test task was executed");
+        assert_eq!(false, failure_msg.msg_sent(), "Test failure NOT sent");
+        assert_eq!(true, success_msg.msg_sent(), "Test success WAS sent");
         Ok(())
     }
 }

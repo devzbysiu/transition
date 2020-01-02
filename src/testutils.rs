@@ -39,7 +39,7 @@ pub(crate) mod utils {
             }
         }
 
-        pub(crate) fn message_sent(&self) -> bool {
+        pub(crate) fn msg_sent(&self) -> bool {
             self.message_sent.load(Ordering::SeqCst)
         }
     }
