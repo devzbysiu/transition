@@ -1,30 +1,28 @@
+use crate::messg::Messg;
 use crate::task::Simple;
 use crate::task::Task;
-use blinkrs::Color;
-use blinkrs::Message;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use lazy_static::lazy_static;
 use log::debug;
+use log::error;
 use log::info;
 use std::thread;
-use std::time::Duration;
 
+mod messg;
 mod task;
 
 lazy_static! {
     static ref DEFAULT_TASK: Simple = Simple::new(&["blue", "white"]);
 }
 
-const NOT_IMPORTANT: usize = 0;
-
-pub struct Transition<T: Task + 'static> {
+pub struct Transition<T: Task + 'static, M: Messg + 'static> {
     task: Option<&'static T>,
-    success_msg: Option<Message>,
-    failure_msg: Option<Message>,
+    success_msg: Option<&'static M>,
+    failure_msg: Option<&'static M>,
 }
 
-impl<T: Task + Send + 'static> Transition<T> {
+impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -38,16 +36,16 @@ impl<T: Task + Send + 'static> Transition<T> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
-        thread::spawn(move || -> Result<usize, failure::Error> {
+        thread::spawn(move || -> Result<(), failure::Error> {
             loop {
                 match receiver.try_recv() {
                     Ok(Msg::Success) => {
                         debug!("received success, breaking with success message");
-                        break Self::send_success_msg();
+                        break self.send_success_msg();
                     }
                     Ok(Msg::Failure) => {
                         debug!("received failure, breaking with failure message");
-                        break Self::send_failure_msg();
+                        break self.send_failure_msg();
                     }
                     Err(_) => info!("no message received"),
                 };
@@ -63,33 +61,30 @@ impl<T: Task + Send + 'static> Transition<T> {
         Ok(Transmitter { sender })
     }
 
-    fn send_success_msg() -> Result<usize, failure::Error> {
-        // self.blinkers
-        // .send(self.success_msg.unwrap_or_else(|| color_msg("green")))?;
-        Ok(NOT_IMPORTANT)
+    fn send_success_msg(&self) -> Result<(), failure::Error> {
+        if let Some(msg) = self.success_msg {
+            debug!("sending success message");
+            msg.send()?
+        } else {
+            error!("no success message found");
+            panic!("no success message found")
+        }
+        Ok(())
     }
 
-    fn send_failure_msg() -> Result<usize, failure::Error> {
-        println!("blinking with failure");
-        // self.blinkers
-        // .send(self.failure_msg.unwrap_or_else(|| color_msg("red")))?;
-        Ok(NOT_IMPORTANT)
-    }
-
-    #[must_use]
-    pub fn on_success(mut self, color_name: &str) -> Self {
-        self.success_msg = Some(color_msg(color_name));
-        self
-    }
-
-    #[must_use]
-    pub fn on_failure(mut self, color_name: &str) -> Self {
-        self.failure_msg = Some(color_msg(color_name));
-        self
+    fn send_failure_msg(&self) -> Result<(), failure::Error> {
+        if let Some(msg) = self.failure_msg {
+            debug!("sending failure message");
+            msg.send()?
+        } else {
+            error!("no failure message found");
+            panic!("no failure message found")
+        }
+        Ok(())
     }
 }
 
-impl<T: Task> Default for Transition<T> {
+impl<T: Task, M: Messg> Default for Transition<T, M> {
     #[must_use]
     fn default() -> Self {
         Self::new()
@@ -119,16 +114,13 @@ impl Transmitter {
     }
 }
 
-fn color_msg(color_name: &str) -> Message {
-    Message::Fade(Color::from(color_name), Duration::from_millis(500))
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
     use lazy_static::lazy_static;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
+    use std::time::Duration;
 
     fn init_logging() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -141,7 +133,7 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let _transition: Transition<TaskSpy> = Transition {
+        let _transition: Transition<TaskSpy, MessageSpy> = Transition {
             task: Some(&task),
             failure_msg: None,
             success_msg: None,
@@ -158,7 +150,7 @@ mod test {
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
         }
-        let transition: Transition<TaskSpy> = Transition {
+        let transition: Transition<TaskSpy, MessageSpy> = Transition {
             task: Some(&task),
             failure_msg: None,
             success_msg: None,
@@ -168,6 +160,30 @@ mod test {
         std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
 
         assert_eq!(true, task.executed());
+        Ok(())
+    }
+
+    #[test]
+    #[allow(non_upper_case_globals)]
+    fn test_failure_msg_was_send_when_failure_notified() -> Result<(), failure::Error> {
+        init_logging();
+        lazy_static! {
+            static ref task: TaskSpy = TaskSpy::new();
+            static ref messg: MessageSpy = MessageSpy::new();
+        }
+        let transition: Transition<TaskSpy, MessageSpy> = Transition {
+            task: Some(&task),
+            failure_msg: Some(&messg),
+            success_msg: None,
+        };
+
+        let tx = transition.start()?;
+        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+        tx.notify_failure()?;
+        std::thread::sleep(Duration::from_millis(1)); // allow message to be sent
+
+        assert_eq!(true, task.executed());
+        assert_eq!(true, messg.message_sent());
         Ok(())
     }
 
@@ -190,6 +206,29 @@ mod test {
     impl Task for TaskSpy {
         fn execute(&self) -> Result<(), failure::Error> {
             self.task_executed.store(true, Ordering::SeqCst);
+            Ok(())
+        }
+    }
+
+    struct MessageSpy {
+        message_sent: AtomicBool,
+    }
+
+    impl MessageSpy {
+        fn new() -> Self {
+            Self {
+                message_sent: AtomicBool::new(false),
+            }
+        }
+
+        fn message_sent(&self) -> bool {
+            self.message_sent.load(Ordering::SeqCst)
+        }
+    }
+
+    impl Messg for MessageSpy {
+        fn send(&self) -> Result<(), failure::Error> {
+            self.message_sent.store(true, Ordering::SeqCst);
             Ok(())
         }
     }
