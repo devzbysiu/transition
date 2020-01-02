@@ -18,8 +18,8 @@ mod testutils;
 
 pub struct Transition {
     task: Arc<dyn Task>,
-    success_msg: Arc<dyn Messg>,
     failure_msg: Arc<dyn Messg>,
+    success_msg: Arc<dyn Messg>,
 }
 
 impl Transition {
@@ -27,8 +27,8 @@ impl Transition {
     pub fn new() -> Self {
         Self {
             task: Arc::new(Simple::new(&["blue", "white"])),
-            success_msg: Arc::new(SimpleMessg::new("green")),
             failure_msg: Arc::new(SimpleMessg::new("red")),
+            success_msg: Arc::new(SimpleMessg::new("green")),
         }
     }
 
@@ -123,12 +123,7 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_task_not_executed_when_transition_not_started() -> Result<(), failure::Error> {
         init_logging();
-        let task = Arc::new(TaskSpy::new());
-        let _transition: Transition = Transition {
-            task: task.clone(),
-            failure_msg: Arc::new(MessageSpy::new()),
-            success_msg: Arc::new(MessageSpy::new()),
-        };
+        let (_, task, _, _) = transition_with_spies();
 
         assert_eq!(false, task.executed(), "Test task was executed");
         Ok(())
@@ -138,12 +133,7 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_task_was_executed_after_transition_start() -> Result<(), failure::Error> {
         init_logging();
-        let task = Arc::new(TaskSpy::new());
-        let transition: Transition = Transition {
-            task: task.clone(),
-            failure_msg: Arc::new(MessageSpy::new()),
-            success_msg: Arc::new(MessageSpy::new()),
-        };
+        let (transition, task, _, _) = transition_with_spies();
 
         transition.start()?;
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
@@ -156,14 +146,7 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), failure::Error> {
         init_logging();
-        let task = Arc::new(TaskSpy::new());
-        let failure_msg = Arc::new(MessageSpy::new());
-        let success_msg = Arc::new(MessageSpy::new());
-        let transition: Transition = Transition {
-            task: task.clone(),
-            failure_msg: failure_msg.clone(),
-            success_msg: success_msg.clone(),
-        };
+        let (transition, task, failure_msg, success_msg) = transition_with_spies();
 
         let tx = transition.start()?;
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
@@ -179,14 +162,7 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_success_msg_was_sent_when_success_notified() -> Result<(), failure::Error> {
         init_logging();
-        let task = Arc::new(TaskSpy::new());
-        let failure_msg = Arc::new(MessageSpy::new());
-        let success_msg = Arc::new(MessageSpy::new());
-        let transition: Transition = Transition {
-            task: task.clone(),
-            failure_msg: failure_msg.clone(),
-            success_msg: success_msg.clone(),
-        };
+        let (transition, task, failure_msg, success_msg) = transition_with_spies();
 
         let tx = transition.start()?;
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
@@ -196,5 +172,17 @@ mod test {
         assert_eq!(false, failure_msg.msg_sent(), "Test failure NOT sent");
         assert_eq!(true, success_msg.msg_sent(), "Test success WAS sent");
         Ok(())
+    }
+
+    fn transition_with_spies() -> (Transition, Arc<TaskSpy>, Arc<MessageSpy>, Arc<MessageSpy>) {
+        let task = Arc::new(TaskSpy::new());
+        let failure_msg = Arc::new(MessageSpy::new());
+        let success_msg = Arc::new(MessageSpy::new());
+        let transition = Transition {
+            task: task.clone(),
+            failure_msg: failure_msg.clone(),
+            success_msg: success_msg.clone(),
+        };
+        (transition, task, failure_msg, success_msg)
     }
 }
