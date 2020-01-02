@@ -39,6 +39,7 @@ pub(crate) mod utils {
             }
         }
 
+        #[allow(dead_code)]
         pub(crate) fn msg_sent(&self) -> bool {
             self.message_sent.load(Ordering::SeqCst)
         }

@@ -1,10 +1,12 @@
 use crate::messg::Messg;
+use crate::messg::SimpleMessg;
+use crate::task::Simple;
 use crate::task::Task;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use log::debug;
-use log::error;
 use log::info;
+use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
@@ -14,20 +16,19 @@ mod task;
 #[cfg(test)]
 mod testutils;
 
-#[derive(Default)]
-pub struct Transition<T: Task + 'static, M: Messg + 'static> {
-    task: Option<&'static T>,
-    success_msg: Option<&'static M>,
-    failure_msg: Option<&'static M>,
+pub struct Transition {
+    task: Arc<dyn Task>,
+    success_msg: Arc<dyn Messg>,
+    failure_msg: Arc<dyn Messg>,
 }
 
-impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
+impl Transition {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            task: None,
-            success_msg: None,
-            failure_msg: None,
+            task: Arc::new(Simple::new(&["blue", "white"])),
+            success_msg: Arc::new(SimpleMessg::new("green")),
+            failure_msg: Arc::new(SimpleMessg::new("red")),
         }
     }
 
@@ -53,16 +54,11 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
 
     fn send_if_present(&self, msg: &Msg) -> Result<(), failure::Error> {
         let message = match msg {
-            Msg::Success => self.success_msg,
-            Msg::Failure => self.failure_msg,
+            Msg::Success => self.success_msg.as_ref(),
+            Msg::Failure => self.failure_msg.as_ref(),
         };
-        if let Some(message) = message {
-            debug!("sending {:?} message", msg);
-            message.send()?
-        } else {
-            error!("no {:?} message found", msg);
-            panic!("no {:?} message found", msg)
-        }
+        debug!("sending {:?} message", msg);
+        message.send()?;
         Ok(())
     }
 
@@ -72,14 +68,16 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
     }
 
     fn execute_task_if_present(&self) -> Result<(), failure::Error> {
-        if let Some(task) = self.task {
-            debug!("executing task");
-            task.execute()?;
-        } else {
-            debug!("no task to execute");
-            panic!("no task to execute");
-        }
+        debug!("executing task");
+        self.task.execute()?;
         Ok(())
+    }
+}
+
+impl Default for Transition {
+    #[must_use]
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -113,7 +111,6 @@ impl Transmitter {
 #[cfg(test)]
 mod test {
     use super::*;
-    use lazy_static::lazy_static;
     use std::time::Duration;
     use testutils::utils::MessageSpy;
     use testutils::utils::TaskSpy;
@@ -126,13 +123,11 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_task_not_executed_when_transition_not_started() -> Result<(), failure::Error> {
         init_logging();
-        lazy_static! {
-            static ref task: TaskSpy = TaskSpy::new();
-        }
-        let _transition: Transition<TaskSpy, MessageSpy> = Transition {
-            task: Some(&task),
-            failure_msg: None,
-            success_msg: None,
+        let task = Arc::new(TaskSpy::new());
+        let _transition: Transition = Transition {
+            task: task.clone(),
+            failure_msg: Arc::new(MessageSpy::new()),
+            success_msg: Arc::new(MessageSpy::new()),
         };
 
         assert_eq!(false, task.executed(), "Test task was executed");
@@ -143,13 +138,11 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_task_was_executed_after_transition_start() -> Result<(), failure::Error> {
         init_logging();
-        lazy_static! {
-            static ref task: TaskSpy = TaskSpy::new();
-        }
-        let transition: Transition<TaskSpy, MessageSpy> = Transition {
-            task: Some(&task),
-            failure_msg: None,
-            success_msg: None,
+        let task = Arc::new(TaskSpy::new());
+        let transition: Transition = Transition {
+            task: task.clone(),
+            failure_msg: Arc::new(MessageSpy::new()),
+            success_msg: Arc::new(MessageSpy::new()),
         };
 
         transition.start()?;
@@ -163,15 +156,13 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), failure::Error> {
         init_logging();
-        lazy_static! {
-            static ref task: TaskSpy = TaskSpy::new();
-            static ref failure_msg: MessageSpy = MessageSpy::new();
-            static ref success_msg: MessageSpy = MessageSpy::new();
-        }
-        let transition: Transition<TaskSpy, MessageSpy> = Transition {
-            task: Some(&task),
-            failure_msg: Some(&failure_msg),
-            success_msg: Some(&success_msg),
+        let task = Arc::new(TaskSpy::new());
+        let failure_msg = Arc::new(MessageSpy::new());
+        let success_msg = Arc::new(MessageSpy::new());
+        let transition: Transition = Transition {
+            task: task.clone(),
+            failure_msg: failure_msg.clone(),
+            success_msg: success_msg.clone(),
         };
 
         let tx = transition.start()?;
@@ -188,15 +179,13 @@ mod test {
     #[allow(non_upper_case_globals)]
     fn test_success_msg_was_sent_when_success_notified() -> Result<(), failure::Error> {
         init_logging();
-        lazy_static! {
-            static ref task: TaskSpy = TaskSpy::new();
-            static ref failure_msg: MessageSpy = MessageSpy::new();
-            static ref success_msg: MessageSpy = MessageSpy::new();
-        }
-        let transition: Transition<TaskSpy, MessageSpy> = Transition {
-            task: Some(&task),
-            failure_msg: Some(&failure_msg),
-            success_msg: Some(&success_msg),
+        let task = Arc::new(TaskSpy::new());
+        let failure_msg = Arc::new(MessageSpy::new());
+        let success_msg = Arc::new(MessageSpy::new());
+        let transition: Transition = Transition {
+            task: task.clone(),
+            failure_msg: failure_msg.clone(),
+            success_msg: success_msg.clone(),
         };
 
         let tx = transition.start()?;
