@@ -62,24 +62,27 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
     }
 
     fn send_success_msg(&self) -> Result<(), failure::Error> {
-        if let Some(msg) = self.success_msg {
-            debug!("sending success message");
-            msg.send()?
+        self.send(&Msg::Success)?;
+        Ok(())
+    }
+
+    fn send(&self, msg: &Msg) -> Result<(), failure::Error> {
+        let message = match msg {
+            Msg::Success => self.success_msg,
+            Msg::Failure => self.failure_msg,
+        };
+        if let Some(message) = message {
+            debug!("sending {:?} message", msg);
+            message.send()?
         } else {
-            error!("no success message found");
-            panic!("no success message found")
+            error!("no {:?} message found", msg);
+            panic!("no {:?} message found", msg)
         }
         Ok(())
     }
 
     fn send_failure_msg(&self) -> Result<(), failure::Error> {
-        if let Some(msg) = self.failure_msg {
-            debug!("sending failure message");
-            msg.send()?
-        } else {
-            error!("no failure message found");
-            panic!("no failure message found")
-        }
+        self.send(&Msg::Failure)?;
         Ok(())
     }
 }
@@ -91,6 +94,7 @@ impl<T: Task, M: Messg> Default for Transition<T, M> {
     }
 }
 
+#[derive(Debug)]
 enum Msg {
     Success,
     Failure,
