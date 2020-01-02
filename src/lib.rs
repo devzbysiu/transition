@@ -23,10 +23,9 @@ pub struct Transition {
 }
 
 impl Transition {
-    #[must_use]
-    pub fn new() -> Self {
+    pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         Self {
-            task: Arc::new(Simple::new(&["blue", "white"])),
+            task: Arc::new(Simple::new(colors)),
             failure_msg: Arc::new(SimpleMessg::new("red")),
             success_msg: Arc::new(SimpleMessg::new("green")),
         }
@@ -72,12 +71,19 @@ impl Transition {
         self.task.execute()?;
         Ok(())
     }
-}
 
-impl Default for Transition {
+    #[allow(dead_code)]
     #[must_use]
-    fn default() -> Self {
-        Self::new()
+    pub fn on_success(mut self, color: &str) -> Self {
+        self.success_msg = Arc::new(SimpleMessg::new(color));
+        self
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn on_failure(mut self, color: &str) -> Self {
+        self.failure_msg = Arc::new(SimpleMessg::new(color));
+        self
     }
 }
 
