@@ -176,12 +176,13 @@ mod test {
         init_logging();
         lazy_static! {
             static ref task: TaskSpy = TaskSpy::new();
-            static ref messg: MessageSpy = MessageSpy::new();
+            static ref failure_message: MessageSpy = MessageSpy::new();
+            static ref success_message: MessageSpy = MessageSpy::new();
         }
         let transition: Transition<TaskSpy, MessageSpy> = Transition {
             task: Some(&task),
-            failure_msg: Some(&messg),
-            success_msg: None,
+            failure_msg: Some(&failure_message),
+            success_msg: Some(&success_message),
         };
 
         let tx = transition.start()?;
@@ -190,7 +191,34 @@ mod test {
         std::thread::sleep(Duration::from_millis(1)); // allow message to be sent
 
         assert_eq!(true, task.executed());
-        assert_eq!(true, messg.message_sent());
+        assert_eq!(true, failure_message.message_sent());
+        assert_eq!(false, success_message.message_sent());
+        Ok(())
+    }
+
+    #[test]
+    #[allow(non_upper_case_globals)]
+    fn test_success_msg_was_send_when_success_notified() -> Result<(), failure::Error> {
+        init_logging();
+        lazy_static! {
+            static ref task: TaskSpy = TaskSpy::new();
+            static ref failure_message: MessageSpy = MessageSpy::new();
+            static ref success_message: MessageSpy = MessageSpy::new();
+        }
+        let transition: Transition<TaskSpy, MessageSpy> = Transition {
+            task: Some(&task),
+            failure_msg: Some(&failure_message),
+            success_msg: Some(&success_message),
+        };
+
+        let tx = transition.start()?;
+        std::thread::sleep(Duration::from_millis(1)); // allow transition to execute
+        tx.notify_success()?;
+        std::thread::sleep(Duration::from_millis(1)); // allow message to be sent
+
+        assert_eq!(true, task.executed());
+        assert_eq!(false, failure_message.message_sent());
+        assert_eq!(true, success_message.message_sent());
         Ok(())
     }
 }
