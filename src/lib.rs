@@ -1,9 +1,7 @@
 use crate::messg::Messg;
-use crate::task::Simple;
 use crate::task::Task;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
-use lazy_static::lazy_static;
 use log::debug;
 use log::error;
 use log::info;
@@ -14,10 +12,6 @@ mod task;
 
 #[cfg(test)]
 mod testutils;
-
-lazy_static! {
-    static ref DEFAULT_TASK: Simple = Simple::new(&["blue", "white"]);
-}
 
 pub struct Transition<T: Task + 'static, M: Messg + 'static> {
     task: Option<&'static T>,
@@ -56,8 +50,8 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
                     debug!("executing task");
                     task.execute()?;
                 } else {
-                    debug!("executing default task");
-                    DEFAULT_TASK.execute()?;
+                    debug!("no task to execute");
+                    panic!("no task to execute");
                 }
             }
         });
