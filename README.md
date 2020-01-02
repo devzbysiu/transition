@@ -5,18 +5,20 @@
   <p>
     <strong>LED notification made easy</strong>
   </p>
-  <p>
-  </p>
 
   <p>
-    <a href="https://crates.io/crates/transition"><img src="https://img.shields.io/crates/v/transition" alt="Crates.io version" /></a>
+    <a href="https://crates.io/crates/transition">
+      <img src="https://img.shields.io/crates/v/transition" alt="Crates.io version" />
+    </a>
     <a href="https://codecov.io/gh/devzbysiu/transition">
-  <img src="https://codecov.io/gh/devzbysiu/transition/branch/master/graph/badge.svg?token=ELme4pPy8K" />
-</a>
-<a href="https://crates.io/crates/cargo-blinc">
-  <img src="https://img.shields.io/crates/l/transition" />
-</a>
-    <a href="https://docs.rs/transition"><img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square" alt="docs.rs docs" /></a>
+      <img src="https://codecov.io/gh/devzbysiu/transition/branch/master/graph/badge.svg?token=AEGDuYKxGj" />
+    </a>
+    <a href="https://crates.io/crates/transition">
+      <img src="https://img.shields.io/crates/l/transition" />
+    </a>
+    <a href="https://docs.rs/transition">
+      <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square" alt="docs.rs docs" />
+    </a>
   </p>
 
   <h4>
