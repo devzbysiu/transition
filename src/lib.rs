@@ -12,6 +12,9 @@ use std::thread;
 mod messg;
 mod task;
 
+#[cfg(test)]
+mod testutils;
+
 lazy_static! {
     static ref DEFAULT_TASK: Simple = Simple::new(&["blue", "white"]);
 }
@@ -122,9 +125,9 @@ impl Transmitter {
 mod test {
     use super::*;
     use lazy_static::lazy_static;
-    use std::sync::atomic::AtomicBool;
-    use std::sync::atomic::Ordering;
     use std::time::Duration;
+    use testutils::MessageSpy;
+    use testutils::TaskSpy;
 
     fn init_logging() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -189,51 +192,5 @@ mod test {
         assert_eq!(true, task.executed());
         assert_eq!(true, messg.message_sent());
         Ok(())
-    }
-
-    struct TaskSpy {
-        task_executed: AtomicBool,
-    }
-
-    impl TaskSpy {
-        fn new() -> Self {
-            Self {
-                task_executed: AtomicBool::new(false),
-            }
-        }
-
-        fn executed(&self) -> bool {
-            self.task_executed.load(Ordering::SeqCst)
-        }
-    }
-
-    impl Task for TaskSpy {
-        fn execute(&self) -> Result<(), failure::Error> {
-            self.task_executed.store(true, Ordering::SeqCst);
-            Ok(())
-        }
-    }
-
-    struct MessageSpy {
-        message_sent: AtomicBool,
-    }
-
-    impl MessageSpy {
-        fn new() -> Self {
-            Self {
-                message_sent: AtomicBool::new(false),
-            }
-        }
-
-        fn message_sent(&self) -> bool {
-            self.message_sent.load(Ordering::SeqCst)
-        }
-    }
-
-    impl Messg for MessageSpy {
-        fn send(&self) -> Result<(), failure::Error> {
-            self.message_sent.store(true, Ordering::SeqCst);
-            Ok(())
-        }
     }
 }
