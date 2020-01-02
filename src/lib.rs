@@ -13,6 +13,7 @@ mod task;
 #[cfg(test)]
 mod testutils;
 
+#[derive(Default)]
 pub struct Transition<T: Task + 'static, M: Messg + 'static> {
     task: Option<&'static T>,
     success_msg: Option<&'static M>,
@@ -36,34 +37,22 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
         thread::spawn(move || -> Result<(), failure::Error> {
             loop {
                 match receiver.try_recv() {
-                    Ok(Msg::Success) => {
-                        debug!("received success, breaking with success message");
-                        break self.send_success_msg();
-                    }
-                    Ok(Msg::Failure) => {
-                        debug!("received failure, breaking with failure message");
-                        break self.send_failure_msg();
-                    }
+                    Ok(Msg::Success) => break self.send_success_msg(),
+                    Ok(Msg::Failure) => break self.send_failure_msg(),
                     Err(_) => info!("no message received"),
                 };
-                if let Some(task) = self.task {
-                    debug!("executing task");
-                    task.execute()?;
-                } else {
-                    debug!("no task to execute");
-                    panic!("no task to execute");
-                }
+                self.execute_task_if_present()?;
             }
         });
         Ok(Transmitter { sender })
     }
 
     fn send_success_msg(&self) -> Result<(), failure::Error> {
-        self.send(&Msg::Success)?;
+        self.send_if_present(&Msg::Success)?;
         Ok(())
     }
 
-    fn send(&self, msg: &Msg) -> Result<(), failure::Error> {
+    fn send_if_present(&self, msg: &Msg) -> Result<(), failure::Error> {
         let message = match msg {
             Msg::Success => self.success_msg,
             Msg::Failure => self.failure_msg,
@@ -79,15 +68,19 @@ impl<T: Task + Send + 'static, M: Messg + Send + 'static> Transition<T, M> {
     }
 
     fn send_failure_msg(&self) -> Result<(), failure::Error> {
-        self.send(&Msg::Failure)?;
+        self.send_if_present(&Msg::Failure)?;
         Ok(())
     }
-}
 
-impl<T: Task, M: Messg> Default for Transition<T, M> {
-    #[must_use]
-    fn default() -> Self {
-        Self::new()
+    fn execute_task_if_present(&self) -> Result<(), failure::Error> {
+        if let Some(task) = self.task {
+            debug!("executing task");
+            task.execute()?;
+        } else {
+            debug!("no task to execute");
+            panic!("no task to execute");
+        }
+        Ok(())
     }
 }
 
