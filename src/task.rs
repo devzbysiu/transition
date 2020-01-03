@@ -15,7 +15,6 @@ pub(crate) struct Simple {
 
 impl Simple {
     #[must_use]
-    #[allow(dead_code)]
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         let mut transition = Vec::new();
         let blinkers: Blinkers =

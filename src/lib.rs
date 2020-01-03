@@ -71,14 +71,12 @@ impl Transition {
         Ok(())
     }
 
-    #[allow(dead_code)]
     #[must_use]
     pub fn on_success(mut self, color: &str) -> Self {
         self.success_msg = Arc::new(msg::Simple::new(color));
         self
     }
 
-    #[allow(dead_code)]
     #[must_use]
     pub fn on_failure(mut self, color: &str) -> Self {
         self.failure_msg = Arc::new(msg::Simple::new(color));

@@ -14,7 +14,6 @@ pub(crate) struct Simple {
 }
 
 impl Simple {
-    #[allow(dead_code)]
     pub(crate) fn new<I: Into<String>>(color: I) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
