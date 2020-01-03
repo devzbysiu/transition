@@ -1,6 +1,5 @@
 use crate::msg::Message;
 use crate::task::Task;
-use anyhow::Result;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use log::debug;
@@ -8,12 +7,25 @@ use log::info;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
+use thiserror::Error;
 
 mod msg;
 mod task;
 
 #[cfg(test)]
 mod testutils;
+
+#[derive(Debug, Error)]
+pub enum TransitionError {
+    #[error("error while executing task in transition")]
+    TaskExecution,
+
+    #[error("cannot contact blink(1) device")]
+    BlinkConnection(#[from] blinkrs::BlinkError),
+
+    #[error("cannot notify second thread")]
+    Notification(#[from] crossbeam_channel::SendError<Msg>),
+}
 
 pub struct Transition {
     task: Arc<dyn Task>,
@@ -30,7 +42,7 @@ impl Transition {
         }
     }
 
-    pub fn start(self) -> Result<Transmitter> {
+    pub fn start(self) -> Result<Transmitter, TransitionError> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
@@ -45,12 +57,12 @@ impl Transition {
         Ok(Transmitter { sender, handle })
     }
 
-    fn send_success_msg(&self) -> Result<()> {
+    fn send_success_msg(&self) -> Result<(), TransitionError> {
         self.send_if_present(&Msg::Success)?;
         Ok(())
     }
 
-    fn send_if_present(&self, msg: &Msg) -> Result<()> {
+    fn send_if_present(&self, msg: &Msg) -> Result<(), TransitionError> {
         let message = match msg {
             Msg::Success => self.success_msg.as_ref(),
             Msg::Failure => self.failure_msg.as_ref(),
@@ -60,12 +72,12 @@ impl Transition {
         Ok(())
     }
 
-    fn send_failure_msg(&self) -> Result<()> {
+    fn send_failure_msg(&self) -> Result<(), TransitionError> {
         self.send_if_present(&Msg::Failure)?;
         Ok(())
     }
 
-    fn execute_task_if_present(&self) -> Result<()> {
+    fn execute_task_if_present(&self) -> Result<(), TransitionError> {
         debug!("executing task");
         self.task.execute()?;
         Ok(())
@@ -85,25 +97,25 @@ impl Transition {
 }
 
 #[derive(Debug)]
-enum Msg {
+pub enum Msg {
     Success,
     Failure,
 }
 
 pub struct Transmitter {
     sender: Sender<Msg>,
-    handle: JoinHandle<Result<()>>,
+    handle: JoinHandle<Result<(), TransitionError>>,
 }
 
 impl Transmitter {
-    pub fn notify_success(self) -> Result<()> {
+    pub fn notify_success(self) -> Result<(), TransitionError> {
         debug!("notifying about success");
         self.sender.send(Msg::Success)?;
         self.handle.join().expect("cannot joing thread")?;
         Ok(())
     }
 
-    pub fn notify_failure(self) -> Result<()> {
+    pub fn notify_failure(self) -> Result<(), TransitionError> {
         debug!("notifying about failure");
         self.sender.send(Msg::Failure)?;
         self.handle.join().expect("cannot joing thread")?;
@@ -124,7 +136,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_not_executed_when_transition_not_started() -> Result<()> {
+    fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionError> {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
 
@@ -134,7 +146,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_was_executed_after_transition_start() -> Result<()> {
+    fn test_task_was_executed_after_transition_start() -> Result<(), TransitionError> {
         init_logging();
         let (transition, task, _, _) = transition_with_spies();
 
@@ -147,7 +159,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_failure_msg_was_sent_when_failure_notified() -> Result<()> {
+    fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), TransitionError> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 
@@ -163,7 +175,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_success_msg_was_sent_when_success_notified() -> Result<()> {
+    fn test_success_msg_was_sent_when_success_notified() -> Result<(), TransitionError> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 

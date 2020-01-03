@@ -2,7 +2,7 @@
 pub(crate) mod utils {
     use crate::msg::Message;
     use crate::task::Task;
-    use anyhow::Result;
+    use crate::TransitionError;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
 
@@ -23,7 +23,7 @@ pub(crate) mod utils {
     }
 
     impl Task for TaskSpy {
-        fn execute(&self) -> Result<()> {
+        fn execute(&self) -> Result<(), TransitionError> {
             self.task_executed.store(true, Ordering::SeqCst);
             Ok(())
         }
@@ -46,7 +46,7 @@ pub(crate) mod utils {
     }
 
     impl Message for MessageSpy {
-        fn send(&self) -> Result<()> {
+        fn send(&self) -> Result<(), TransitionError> {
             self.message_sent.store(true, Ordering::SeqCst);
             Ok(())
         }
