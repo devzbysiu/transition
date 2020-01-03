@@ -1,10 +1,11 @@
+use anyhow::Result;
 use blinkrs::Blinkers;
 use blinkrs::Color;
 use blinkrs::Message;
 use std::time::Duration;
 
 pub trait Messg: Send + Sync {
-    fn send(&self) -> Result<(), failure::Error>;
+    fn send(&self) -> Result<()>;
 }
 
 pub(crate) struct SimpleMessg {
@@ -25,7 +26,7 @@ impl SimpleMessg {
 }
 
 impl Messg for SimpleMessg {
-    fn send(&self) -> Result<(), failure::Error> {
+    fn send(&self) -> Result<()> {
         self.blinkers.send(self.color_msg)?;
         Ok(())
     }

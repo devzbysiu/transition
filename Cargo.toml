@@ -1,14 +1,14 @@
 [package]
 name = "transition"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Bartosz Zbytniewski <bartosz.zbytniewski.dev@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 blinkrs = "0.2.1"
-failure = "0.1.6"
 crossbeam-channel = "0.4.0"
 log = "0.4.8"
+anyhow = "1.0.26"
 
 [dev-dependencies]
 env_logger = "0.7.1"

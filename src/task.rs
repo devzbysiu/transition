@@ -2,9 +2,10 @@ use blinkrs::Blinkers;
 use blinkrs::Color;
 use blinkrs::Message;
 use std::time::Duration;
+use anyhow::Result;
 
 pub trait Task: Send + Sync {
-    fn execute(&self) -> Result<(), failure::Error>;
+    fn execute(&self) -> Result<()>;
 }
 
 pub(crate) struct Simple {
@@ -40,7 +41,7 @@ impl Simple {
 }
 
 impl Task for Simple {
-    fn execute(&self) -> Result<(), failure::Error> {
+    fn execute(&self) -> Result<()> {
         self.play_transition();
         Ok(())
     }

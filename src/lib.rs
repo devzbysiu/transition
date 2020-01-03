@@ -9,6 +9,7 @@ use log::info;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
+use anyhow::Result;
 
 mod messg;
 mod task;
@@ -31,7 +32,7 @@ impl Transition {
         }
     }
 
-    pub fn start(self) -> Result<Transmitter, failure::Error> {
+    pub fn start(self) -> Result<Transmitter> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
@@ -46,12 +47,12 @@ impl Transition {
         Ok(Transmitter { sender, handle })
     }
 
-    fn send_success_msg(&self) -> Result<(), failure::Error> {
+    fn send_success_msg(&self) -> Result<()> {
         self.send_if_present(&Msg::Success)?;
         Ok(())
     }
 
-    fn send_if_present(&self, msg: &Msg) -> Result<(), failure::Error> {
+    fn send_if_present(&self, msg: &Msg) -> Result<()> {
         let message = match msg {
             Msg::Success => self.success_msg.as_ref(),
             Msg::Failure => self.failure_msg.as_ref(),
@@ -61,12 +62,12 @@ impl Transition {
         Ok(())
     }
 
-    fn send_failure_msg(&self) -> Result<(), failure::Error> {
+    fn send_failure_msg(&self) -> Result<()> {
         self.send_if_present(&Msg::Failure)?;
         Ok(())
     }
 
-    fn execute_task_if_present(&self) -> Result<(), failure::Error> {
+    fn execute_task_if_present(&self) -> Result<()> {
         debug!("executing task");
         self.task.execute()?;
         Ok(())
@@ -95,18 +96,18 @@ enum Msg {
 
 pub struct Transmitter {
     sender: Sender<Msg>,
-    handle: JoinHandle<Result<(), failure::Error>>,
+    handle: JoinHandle<Result<()>>,
 }
 
 impl Transmitter {
-    pub fn notify_success(self) -> Result<(), failure::Error> {
+    pub fn notify_success(self) -> Result<()> {
         debug!("notifying about success");
         self.sender.send(Msg::Success)?;
         self.handle.join().expect("cannot joing thread")?;
         Ok(())
     }
 
-    pub fn notify_failure(self) -> Result<(), failure::Error> {
+    pub fn notify_failure(self) -> Result<()> {
         debug!("notifying about failure");
         self.sender.send(Msg::Failure)?;
         self.handle.join().expect("cannot joing thread")?;
@@ -127,7 +128,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_not_executed_when_transition_not_started() -> Result<(), failure::Error> {
+    fn test_task_not_executed_when_transition_not_started() -> Result<()> {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
 
@@ -137,7 +138,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_was_executed_after_transition_start() -> Result<(), failure::Error> {
+    fn test_task_was_executed_after_transition_start() -> Result<()> {
         init_logging();
         let (transition, task, _, _) = transition_with_spies();
 
@@ -150,7 +151,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), failure::Error> {
+    fn test_failure_msg_was_sent_when_failure_notified() -> Result<()> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 
@@ -166,7 +167,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_success_msg_was_sent_when_success_notified() -> Result<(), failure::Error> {
+    fn test_success_msg_was_sent_when_success_notified() -> Result<()> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 

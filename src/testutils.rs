@@ -4,6 +4,7 @@ pub(crate) mod utils {
     use crate::task::Task;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
+    use anyhow::Result;
 
     pub(crate) struct TaskSpy {
         task_executed: AtomicBool,
@@ -22,7 +23,7 @@ pub(crate) mod utils {
     }
 
     impl Task for TaskSpy {
-        fn execute(&self) -> Result<(), failure::Error> {
+        fn execute(&self) -> Result<()> {
             self.task_executed.store(true, Ordering::SeqCst);
             Ok(())
         }
@@ -46,7 +47,7 @@ pub(crate) mod utils {
     }
 
     impl Messg for MessageSpy {
-        fn send(&self) -> Result<(), failure::Error> {
+        fn send(&self) -> Result<()> {
             self.message_sent.store(true, Ordering::SeqCst);
             Ok(())
         }
