@@ -1,10 +1,10 @@
 #[cfg(test)]
 pub(crate) mod utils {
-    use crate::messg::Messg;
+    use crate::msg::Message;
     use crate::task::Task;
+    use anyhow::Result;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
-    use anyhow::Result;
 
     pub(crate) struct TaskSpy {
         task_executed: AtomicBool,
@@ -46,7 +46,7 @@ pub(crate) mod utils {
         }
     }
 
-    impl Messg for MessageSpy {
+    impl Message for MessageSpy {
         fn send(&self) -> Result<()> {
             self.message_sent.store(true, Ordering::SeqCst);
             Ok(())

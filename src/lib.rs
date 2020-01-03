@@ -1,7 +1,6 @@
-use crate::messg::Messg;
-use crate::messg::SimpleMessg;
-use crate::task::Simple;
+use crate::msg::Message;
 use crate::task::Task;
+use anyhow::Result;
 use crossbeam_channel::unbounded;
 use crossbeam_channel::Sender;
 use log::debug;
@@ -9,9 +8,8 @@ use log::info;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
-use anyhow::Result;
 
-mod messg;
+mod msg;
 mod task;
 
 #[cfg(test)]
@@ -19,16 +17,16 @@ mod testutils;
 
 pub struct Transition {
     task: Arc<dyn Task>,
-    failure_msg: Arc<dyn Messg>,
-    success_msg: Arc<dyn Messg>,
+    failure_msg: Arc<dyn Message>,
+    success_msg: Arc<dyn Message>,
 }
 
 impl Transition {
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         Self {
-            task: Arc::new(Simple::new(colors)),
-            failure_msg: Arc::new(SimpleMessg::new("red")),
-            success_msg: Arc::new(SimpleMessg::new("green")),
+            task: Arc::new(task::Simple::new(colors)),
+            failure_msg: Arc::new(msg::Simple::new("red")),
+            success_msg: Arc::new(msg::Simple::new("green")),
         }
     }
 
@@ -76,14 +74,14 @@ impl Transition {
     #[allow(dead_code)]
     #[must_use]
     pub fn on_success(mut self, color: &str) -> Self {
-        self.success_msg = Arc::new(SimpleMessg::new(color));
+        self.success_msg = Arc::new(msg::Simple::new(color));
         self
     }
 
     #[allow(dead_code)]
     #[must_use]
     pub fn on_failure(mut self, color: &str) -> Self {
-        self.failure_msg = Arc::new(SimpleMessg::new(color));
+        self.failure_msg = Arc::new(msg::Simple::new(color));
         self
     }
 }

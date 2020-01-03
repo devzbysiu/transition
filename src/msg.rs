@@ -1,19 +1,19 @@
 use anyhow::Result;
 use blinkrs::Blinkers;
 use blinkrs::Color;
-use blinkrs::Message;
+use blinkrs::Message as BlinkMsg;
 use std::time::Duration;
 
-pub trait Messg: Send + Sync {
+pub trait Message: Send + Sync {
     fn send(&self) -> Result<()>;
 }
 
-pub(crate) struct SimpleMessg {
+pub(crate) struct Simple {
     blinkers: Blinkers,
-    color_msg: Message,
+    color_msg: BlinkMsg,
 }
 
-impl SimpleMessg {
+impl Simple {
     #[allow(dead_code)]
     pub(crate) fn new<I: Into<String>>(color: I) -> Self {
         let blinkers: Blinkers =
@@ -25,15 +25,15 @@ impl SimpleMessg {
     }
 }
 
-impl Messg for SimpleMessg {
+impl Message for Simple {
     fn send(&self) -> Result<()> {
         self.blinkers.send(self.color_msg)?;
         Ok(())
     }
 }
 
-fn color_msg<I: Into<String>>(color_name: I) -> Message {
-    Message::Fade(
+fn color_msg<I: Into<String>>(color_name: I) -> BlinkMsg {
+    BlinkMsg::Fade(
         Color::from(color_name.into().as_str()),
         Duration::from_millis(500),
     )
