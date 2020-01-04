@@ -1,8 +1,12 @@
-pub mod error;
+#[cfg(test)]
+mod testutils;
+
+mod error;
 mod msg;
-pub mod notifier;
+mod notifier;
 mod task;
 pub mod transition;
 
-#[cfg(test)]
-mod testutils;
+pub use error::TransitionErr;
+pub use notifier::Notifier;
+pub use transition::Transition;
