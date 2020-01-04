@@ -8,12 +8,12 @@ pub trait Task: Send + Sync {
     fn execute(&self) -> Result<(), TransitionError>;
 }
 
-pub(crate) struct Simple {
+pub(crate) struct BlinkTask {
     blinkers: Blinkers,
     transition: Vec<BlinkMsg>,
 }
 
-impl Simple {
+impl BlinkTask {
     #[must_use]
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         let mut transition = Vec::new();
@@ -39,7 +39,7 @@ impl Simple {
     }
 }
 
-impl Task for Simple {
+impl Task for BlinkTask {
     fn execute(&self) -> Result<(), TransitionError> {
         self.play_transition();
         Ok(())

@@ -8,12 +8,12 @@ pub trait Message: Send + Sync {
     fn send(&self) -> Result<(), TransitionError>;
 }
 
-pub(crate) struct Simple {
+pub(crate) struct ColorMessage {
     blinkers: Blinkers,
     color_msg: BlinkMsg,
 }
 
-impl Simple {
+impl ColorMessage {
     pub(crate) fn new<I: Into<String>>(color: I) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
@@ -24,7 +24,7 @@ impl Simple {
     }
 }
 
-impl Message for Simple {
+impl Message for ColorMessage {
     fn send(&self) -> Result<(), TransitionError> {
         self.blinkers.send(self.color_msg)?;
         Ok(())
