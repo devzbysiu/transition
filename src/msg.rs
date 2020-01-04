@@ -1,11 +1,11 @@
-use crate::TransitionError;
+use crate::error::TransitionErr;
 use blinkrs::Blinkers;
 use blinkrs::Color;
 use blinkrs::Message as BlinkMsg;
 use std::time::Duration;
 
 pub trait Message: Send + Sync {
-    fn send(&self) -> Result<(), TransitionError>;
+    fn send(&self) -> Result<(), TransitionErr>;
 }
 
 pub(crate) struct ColorMessage {
@@ -25,7 +25,7 @@ impl ColorMessage {
 }
 
 impl Message for ColorMessage {
-    fn send(&self) -> Result<(), TransitionError> {
+    fn send(&self) -> Result<(), TransitionErr> {
         self.blinkers.send(self.color_msg)?;
         Ok(())
     }

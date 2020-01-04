@@ -1,8 +1,8 @@
 #[cfg(test)]
 pub(crate) mod utils {
+    use crate::error::TransitionErr;
     use crate::msg::Message;
     use crate::task::Task;
-    use crate::TransitionError;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
 
@@ -23,7 +23,7 @@ pub(crate) mod utils {
     }
 
     impl Task for TaskSpy {
-        fn execute(&self) -> Result<(), TransitionError> {
+        fn execute(&self) -> Result<(), TransitionErr> {
             self.task_executed.store(true, Ordering::SeqCst);
             Ok(())
         }
@@ -46,7 +46,7 @@ pub(crate) mod utils {
     }
 
     impl Message for MessageSpy {
-        fn send(&self) -> Result<(), TransitionError> {
+        fn send(&self) -> Result<(), TransitionErr> {
             self.message_sent.store(true, Ordering::SeqCst);
             Ok(())
         }

@@ -1,10 +1,10 @@
+use crate::error::TransitionErr;
 use crate::msg::ColorMessage;
 use crate::msg::Message;
+use crate::notifier::MsgType;
 use crate::notifier::Notifier;
 use crate::task::BlinkTask;
 use crate::task::Task;
-use crate::MsgType;
-use crate::TransitionError;
 use crossbeam_channel::unbounded;
 
 use log::debug;
@@ -27,7 +27,7 @@ impl Transition {
         }
     }
 
-    pub fn start(self) -> Result<Notifier, TransitionError> {
+    pub fn start(self) -> Result<Notifier, TransitionErr> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
@@ -42,12 +42,12 @@ impl Transition {
         Ok(Notifier::new(sender, handle))
     }
 
-    fn send_success_msg(&self) -> Result<(), TransitionError> {
+    fn send_success_msg(&self) -> Result<(), TransitionErr> {
         self.send_if_present(&MsgType::Success)?;
         Ok(())
     }
 
-    fn send_if_present(&self, msg: &MsgType) -> Result<(), TransitionError> {
+    fn send_if_present(&self, msg: &MsgType) -> Result<(), TransitionErr> {
         let message = match msg {
             MsgType::Success => self.success_msg.as_ref(),
             MsgType::Failure => self.failure_msg.as_ref(),
@@ -57,12 +57,12 @@ impl Transition {
         Ok(())
     }
 
-    fn send_failure_msg(&self) -> Result<(), TransitionError> {
+    fn send_failure_msg(&self) -> Result<(), TransitionErr> {
         self.send_if_present(&MsgType::Failure)?;
         Ok(())
     }
 
-    fn execute_task_if_present(&self) -> Result<(), TransitionError> {
+    fn execute_task_if_present(&self) -> Result<(), TransitionErr> {
         debug!("executing task");
         self.task.execute()?;
         Ok(())
@@ -94,7 +94,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionError> {
+    fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionErr> {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
 
@@ -104,7 +104,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_task_was_executed_after_transition_start() -> Result<(), TransitionError> {
+    fn test_task_was_executed_after_transition_start() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, _, _) = transition_with_spies();
 
@@ -117,7 +117,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), TransitionError> {
+    fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 
@@ -133,7 +133,7 @@ mod test {
 
     #[test]
     #[allow(non_upper_case_globals)]
-    fn test_success_msg_was_sent_when_success_notified() -> Result<(), TransitionError> {
+    fn test_success_msg_was_sent_when_success_notified() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
 

@@ -1,11 +1,11 @@
-use crate::TransitionError;
+use crate::error::TransitionErr;
 use blinkrs::Blinkers;
 use blinkrs::Color;
 use blinkrs::Message as BlinkMsg;
 use std::time::Duration;
 
 pub trait Task: Send + Sync {
-    fn execute(&self) -> Result<(), TransitionError>;
+    fn execute(&self) -> Result<(), TransitionErr>;
 }
 
 pub(crate) struct BlinkTask {
@@ -40,7 +40,7 @@ impl BlinkTask {
 }
 
 impl Task for BlinkTask {
-    fn execute(&self) -> Result<(), TransitionError> {
+    fn execute(&self) -> Result<(), TransitionErr> {
         self.play_transition();
         Ok(())
     }
