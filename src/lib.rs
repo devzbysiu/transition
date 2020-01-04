@@ -1,11 +1,9 @@
-use crossbeam_channel::Sender;
-use log::debug;
-use std::thread::JoinHandle;
 use thiserror::Error;
 
 mod msg;
+pub mod notifier;
 mod task;
-mod transition;
+pub mod transition;
 
 #[cfg(test)]
 mod testutils;
@@ -20,27 +18,6 @@ pub enum TransitionError {
 
     #[error("cannot notify second thread")]
     Notification(#[from] crossbeam_channel::SendError<MsgType>),
-}
-
-pub struct Transmitter {
-    sender: Sender<MsgType>,
-    handle: JoinHandle<Result<(), TransitionError>>,
-}
-
-impl Transmitter {
-    pub fn notify_success(self) -> Result<(), TransitionError> {
-        debug!("notifying about success");
-        self.sender.send(MsgType::Success)?;
-        self.handle.join().expect("cannot joing thread")?;
-        Ok(())
-    }
-
-    pub fn notify_failure(self) -> Result<(), TransitionError> {
-        debug!("notifying about failure");
-        self.sender.send(MsgType::Failure)?;
-        self.handle.join().expect("cannot joing thread")?;
-        Ok(())
-    }
 }
 
 #[derive(Debug)]

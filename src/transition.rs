@@ -1,10 +1,10 @@
 use crate::msg::ColorMessage;
 use crate::msg::Message;
+use crate::notifier::Notifier;
 use crate::task::BlinkTask;
 use crate::task::Task;
 use crate::MsgType;
 use crate::TransitionError;
-use crate::Transmitter;
 use crossbeam_channel::unbounded;
 
 use log::debug;
@@ -12,7 +12,6 @@ use log::info;
 use std::sync::Arc;
 use std::thread;
 
-#[allow(dead_code)]
 pub struct Transition {
     task: Arc<dyn Task>,
     failure_msg: Arc<dyn Message>,
@@ -20,7 +19,6 @@ pub struct Transition {
 }
 
 impl Transition {
-    #[allow(dead_code)]
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
@@ -29,8 +27,7 @@ impl Transition {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn start(self) -> Result<Transmitter, TransitionError> {
+    pub fn start(self) -> Result<Notifier, TransitionError> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
         debug!("starting thread with task to execute");
@@ -42,7 +39,7 @@ impl Transition {
             };
             self.execute_task_if_present()?;
         });
-        Ok(Transmitter { sender, handle })
+        Ok(Notifier::new(sender, handle))
     }
 
     fn send_success_msg(&self) -> Result<(), TransitionError> {
@@ -50,7 +47,6 @@ impl Transition {
         Ok(())
     }
 
-    #[allow(dead_code)]
     fn send_if_present(&self, msg: &MsgType) -> Result<(), TransitionError> {
         let message = match msg {
             MsgType::Success => self.success_msg.as_ref(),
@@ -73,14 +69,12 @@ impl Transition {
     }
 
     #[must_use]
-    #[allow(dead_code)]
     pub fn on_success(mut self, color: &str) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
         self
     }
 
     #[must_use]
-    #[allow(dead_code)]
     pub fn on_failure(mut self, color: &str) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
         self
