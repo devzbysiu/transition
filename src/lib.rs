@@ -7,6 +7,6 @@ mod notifier;
 mod task;
 pub mod transition;
 
+pub use crate::transition::Transition;
 pub use error::TransitionErr;
 pub use notifier::Notifier;
-pub use transition::Transition;
