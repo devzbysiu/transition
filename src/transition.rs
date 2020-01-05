@@ -71,6 +71,7 @@ impl Transition {
         Ok(())
     }
 
+    /// Allows to override success color.
     #[must_use]
     pub fn on_success(mut self, color: &str) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
