@@ -77,6 +77,7 @@ impl Transition {
         self
     }
 
+    /// Allows to override failure color.
     #[must_use]
     pub fn on_failure(mut self, color: &str) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
