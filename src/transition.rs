@@ -12,6 +12,7 @@ use log::info;
 use std::sync::Arc;
 use std::thread;
 
+/// Main structure. Represents colors of task state (pending, successfull, failed). Allows to start the transition.
 pub struct Transition {
     task: Arc<dyn Task>,
     failure_msg: Arc<dyn Message>,
@@ -19,6 +20,8 @@ pub struct Transition {
 }
 
 impl Transition {
+    /// Creates new instance of `Transition` with specified colors for "pending" state.
+    /// The failure color is set to *red* and the success color is set to *green*.
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
