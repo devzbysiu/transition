@@ -21,7 +21,21 @@ pub struct Transition {
 
 impl Transition {
     /// Creates new instance of `Transition` with specified colors for "pending" state.
-    /// The failure color is set to *red* and the success color is set to *green*.
+    ///
+    /// Passed colors will be used between calls of
+    /// [start()](struct.Transition.html#method.start) and
+    /// [notify_success()](../struct.Notifier.html#method.notify_success) (or
+    /// [notify_failure()](../struct.Notifier.html#method.notify_failure)) to visualise pendig task
+    /// execution.
+    /// The failure color is set to *red* and the success color is set to *green*. You can override
+    /// success and failure colors using [on_success](struct.Transition.html#method.on_success) and
+    /// [on_failure](struct.Transition.html#method.on_failure) accordingly.
+    ///
+    /// # Example:
+    ///
+    /// ```
+    /// let transition = Transition::new(&["blue", "white"]);
+    /// ```
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
@@ -30,6 +44,10 @@ impl Transition {
         }
     }
 
+    /// Starts the transition.
+    ///
+    /// The transition is started in a separate thread. As a result, you get
+    /// [Notifier](../struct.Notifier) struct.
     pub fn start(self) -> Result<Notifier, TransitionErr> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();
