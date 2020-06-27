@@ -113,9 +113,11 @@ impl Transition {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use crate::error::TransitionErr;
     use crate::testutils::utils::MessageSpy;
     use crate::testutils::utils::TaskSpy;
+    use crate::transition::Transition;
+    use std::sync::Arc;
     use std::time::Duration;
 
     fn init_logging() {
