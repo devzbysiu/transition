@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+
 //! This crate allows to programmatically control LED light - blink(1).
 //! The purpose is to be able to show the status of your task by "wrapping" all it's
 //! execution between calls to this library.
