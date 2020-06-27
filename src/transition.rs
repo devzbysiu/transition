@@ -24,12 +24,12 @@ impl Transition {
     ///
     /// Passed colors will be used between calls of
     /// [start()](struct.Transition.html#method.start) and
-    /// [notify_success()](../struct.Notifier.html#method.notify_success) (or
-    /// [notify_failure()](../struct.Notifier.html#method.notify_failure)) to visualise pendig task
+    /// [`notify_success`](../struct.Notifier.html#method.notify_success) (or
+    /// [`notify_failure`](../struct.Notifier.html#method.notify_failure)) to visualise pendig task
     /// execution.
     /// The failure color is set to *red* and the success color is set to *green*. You can override
-    /// success and failure colors using [on_success](struct.Transition.html#method.on_success) and
-    /// [on_failure](struct.Transition.html#method.on_failure) accordingly.
+    /// success and failure colors using [`on_success`](struct.Transition.html#method.on_success) and
+    /// [`on_failure`](struct.Transition.html#method.on_failure) accordingly.
     ///
     /// # Example:
     ///
@@ -50,6 +50,11 @@ impl Transition {
     ///
     /// The transition is started in a separate thread. As a result, you get
     /// [Notifier](../struct.Notifier) struct.
+    ///
+    /// # Errors
+    ///
+    /// If any error related to Blink(1) device will be thrown, this method results with
+    /// [`TransitionErr`](enum.TransitionErr.html).
     pub fn start(self) -> Result<Notifier, TransitionErr> {
         debug!("starting transition");
         let (sender, receiver) = unbounded();

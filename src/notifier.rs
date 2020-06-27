@@ -36,10 +36,16 @@ impl Notifier {
     /// Finishes the transition with success.
     ///
     /// Changes the color of the LED, to the one set with
-    /// [on_success](./transition/struct.Transition.html#method.on_success). If not set, the
+    /// [`on_success`](transition/struct.Transition.html#method.on_success). If not set, the
     /// default is set to *green*.
     ///
     /// Stops the thread which is responsible for blinking of the LED.
+    ///
+    /// # Errors
+    ///
+    /// This method sends message to blinking thread using crossbeam channel.
+    /// If any error related with sending this message will occur, then this method returns
+    /// [`TransitionErr`](enum.TransitionErr.html).
     pub fn notify_success(self) -> Result<(), TransitionErr> {
         debug!("notifying about success");
         self.sender.send(MsgType::Success)?;
@@ -50,10 +56,17 @@ impl Notifier {
     /// Finishes the transition with failure.
     ///
     /// Changes the color of the LED, to the one set with
-    /// [on_failure](./transition/struct.Transition.html#method.on_failure). If not set, the
+    /// [`on_failure`](./transition/struct.Transition.html#method.on_failure). If not set, the
     /// default is set to *red*.
     ///
     /// Stops the thread which is responsible for blinking of the LED.
+    ///
+    /// # Errors
+    ///
+    /// This method sends message to blinking thread using crossbeam channel.
+    /// If any error related with sending this message will occur, then this method returns
+    /// [`TransitionErr`](enum.TransitionErr.html).
+
     pub fn notify_failure(self) -> Result<(), TransitionErr> {
         debug!("notifying about failure");
         self.sender.send(MsgType::Failure)?;
