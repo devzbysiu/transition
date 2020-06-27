@@ -24,6 +24,8 @@
   <h4>
     <a href="#about">About</a>
     <span> | </span>
+    <a href="#demo">Demo</a>
+    <span> | </span>
     <a href="#installation">Installation</a>
     <span> | </span>
     <a href="#license">License</a>
@@ -36,11 +38,49 @@
 
 # <p id="about">About</p>
 
-## --- TODO ---
+This library allows you control the state of code execution using blink(1) LED notifier.
+
+You simply:
+1. Write code which you want to track:
+  ```rust
+  // example code
+  println!("executing time consuming task");
+  ```
+2. Wrap your code with transition library:
+  ```rust
+  // start notification
+  let notification = Transition::new(&["blue", "white"]).start()?;
+
+  // our example code
+  println!("executing time consuming task");
+
+  // task finished with success
+  notification.notify_success();
+  ```
+
+#### What does it do?
+1. After calling `start()`, blink(1) starts blinking with blue and white colors interchangeably.
+   This is done in a separate thread.
+2. Then our code is executing.
+3. At the end we call `notification.notify_success()` (or `notification.notify_failure()`) which
+   changes the color of LED to green (or red). The colors can be changed:
+   ```rust
+   let transition = Transition::new(&["blue", "white"])
+      .on_success("green")
+      .on_failure("red");
+   ```
+
+# <p id="demo">Demo</p>
+
+##  -- TODO
 
 # <p id="installation">Installation</p>
 
-## --- TODO ---
+Add
+```toml
+transition = "0.1.0"
+```
+to your `Cargo.toml`.
 
 # <p id="license">License</p>
 
