@@ -39,7 +39,7 @@ mod error;
 mod msg;
 mod notifier;
 mod task;
-pub mod transition;
+mod transition;
 
 pub use crate::transition::Transition;
 pub use error::TransitionErr;

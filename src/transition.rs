@@ -34,6 +34,8 @@ impl Transition {
     /// # Example:
     ///
     /// ```
+    /// use crate::transition::Transition;
+    ///
     /// let transition = Transition::new(&["blue", "white"]);
     /// ```
     pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
