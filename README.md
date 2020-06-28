@@ -41,34 +41,28 @@
 
 This library allows you control the state of code execution using blink(1) LED notifier.
 
-You simply:
-1. Write code which you want to track:
-  ```rust
-  // example code
-  println!("executing time consuming task");
-  ```
-2. Wrap your code with transition library:
-  ```rust
-  use transition::{Transition, Led};
-  use std::error::Error;
+You simply wrap the code you want to track with transition library:
+```rust
+use transition::{Transition, Led};
+use std::error::Error;
 
-  fn main() -> Result<(), Box<dyn Error>> {
-      // start notification
-      let notification = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+fn main() -> Result<(), Box<dyn Error>> {
+    // start notification
+    let notification = Transition::new(&[Led::Blue, Led::Blank]).start()?;
 
-      // our example code
-      println!("executing time consuming task");
+    // our example code
+    println!("executing time consuming task");
 
-      // task finished with success
-      notification.notify_success();
+    // task finished with success
+    notification.notify_success();
 
-      Ok(())
-  }
-  ```
+    Ok(())
+}
+```
 
 #### What does it do?
-1. After calling `start()`, blink(1) starts blinking with blue and white colors interchangeably.
-   This is done in a separate thread.
+1. After calling `start()`, blink(1) starts blinking with blue light. This is done in a separate
+   thread.
 2. Then our code is executing.
 3. At the end we call `notification.notify_success()` (or `notification.notify_failure()`) which
    changes the color of LED to green (or red). The colors can be changed:
