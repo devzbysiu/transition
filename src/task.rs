@@ -1,6 +1,6 @@
+use crate::color::Led;
 use crate::error::TransitionErr;
 use blinkrs::Blinkers;
-use blinkrs::Color;
 use blinkrs::Message as BlinkMsg;
 use std::time::Duration;
 
@@ -15,15 +15,12 @@ pub(crate) struct BlinkTask {
 
 impl BlinkTask {
     #[must_use]
-    pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
+    pub fn new(colors: &[Led]) -> Self {
         let mut transition = Vec::new();
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
-        for color_name in colors {
-            transition.push(BlinkMsg::Fade(
-                Color::from(color_name.as_ref()),
-                Duration::from_millis(500),
-            ));
+        for color in colors {
+            transition.push(BlinkMsg::Fade(color.into(), Duration::from_millis(500)));
         }
         Self {
             blinkers,

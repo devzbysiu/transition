@@ -1,3 +1,4 @@
+use crate::color::Led;
 use crate::error::TransitionErr;
 use crate::msg::ColorMessage;
 use crate::msg::Message;
@@ -34,15 +35,16 @@ impl Transition {
     /// # Example:
     ///
     /// ```
-    /// use crate::transition::Transition;
+    /// use crate::transition::{Transition, Led};
     ///
-    /// let transition = Transition::new(&["blue", "white"]);
+    /// let transition = Transition::new(&[Led::Blue, Led::Blank]);
     /// ```
-    pub fn new<A: AsRef<str>>(colors: &[A]) -> Self {
+    #[must_use]
+    pub fn new(colors: &[Led]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
-            failure_msg: Arc::new(ColorMessage::new("red")),
-            success_msg: Arc::new(ColorMessage::new("green")),
+            failure_msg: Arc::new(ColorMessage::new(Led::Red)),
+            success_msg: Arc::new(ColorMessage::new(Led::Green)),
         }
     }
 
@@ -98,14 +100,14 @@ impl Transition {
 
     /// Allows to override success color.
     #[must_use]
-    pub fn on_success(mut self, color: &str) -> Self {
+    pub fn on_success(mut self, color: Led) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
         self
     }
 
     /// Allows to override failure color.
     #[must_use]
-    pub fn on_failure(mut self, color: &str) -> Self {
+    pub fn on_failure(mut self, color: Led) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
         self
     }

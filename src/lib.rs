@@ -12,15 +12,15 @@
 //! # Example
 //!
 //! ```rust
-//! use transition::Transition;
+//! use transition::{Transition, Led};
 //! use std::error::Error;
 //! use std::thread;
 //! use std::time::Duration;
 //!
 //! fn main() -> Result<(), Box<dyn Error>> {
-//!     let notifier = Transition::new(&["blue", "white"]) // pending state
-//!         .on_success("green")
-//!         .on_failure("red")
+//!     let notifier = Transition::new(&[Led::Blue, Led::Blank]) // pending state
+//!         .on_success(Led::Green)
+//!         .on_failure(Led::Red)
 //!         .start()?;
 //!
 //!     // your code here, e.g.:
@@ -35,12 +35,14 @@
 #[cfg(test)]
 mod testutils;
 
+mod color;
 mod error;
 mod msg;
 mod notifier;
 mod task;
 mod transition;
 
+pub use crate::color::Led;
 pub use crate::transition::Transition;
 pub use error::TransitionErr;
 pub use notifier::Notifier;

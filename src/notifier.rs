@@ -11,10 +11,10 @@ use std::thread::JoinHandle;
 /// # Example:
 ///
 /// ```
-/// use transition::{Transition, Notifier};
+/// use transition::{Transition, Notifier, Led};
 /// use std::{error::Error, time::Duration, thread};
 ///
-/// let notifier: Notifier = Transition::new(&["blue", "white"]).start()?;
+/// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
 /// // blinks using colors blue - white interchangeably
 /// thread::sleep(Duration::from_secs(1));
 /// notifier.notify_failure();
