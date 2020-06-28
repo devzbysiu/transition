@@ -65,15 +65,26 @@ fn main() -> Result<(), Box<dyn Error>> {
    thread.
 2. Then our code is executing.
 3. At the end we call `notification.notify_success()` (or `notification.notify_failure()`) which
-   changes the color of LED to green (or red). The colors can be changed:
-   ```rust
-   use transition::Led;
-   use transition::Transition;
+   changes the color of LED to green (or red).
 
-   let transition = Transition::new(&[Led::Blue, Led::Blank])
-      .on_success(&Led::Green)
-      .on_failure(&Led::Red);
-   ```
+The colors can be changed:
+```rust
+use transition::Led;
+
+let color = Led::Blue;
+match color {
+  Led::Red => println!("red"),
+  Led::Green => println!("green"),
+  Led::Blue => println!("blue"),
+  Led::Yellow => println!("yellow"),
+  Led::Orange => println!("orange"),
+  Led::Pink => println!("pink"),
+  Led::Cyan => println!("cyan"),
+  Led::White => println!("white"),
+  Led::Blank => println!("turn off the led"),
+}
+
+```
 
 # <p id="demo">Demo</p>
 

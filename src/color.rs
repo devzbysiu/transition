@@ -9,6 +9,11 @@ pub enum Led {
     Red,
     Green,
     Blue,
+    Yellow,
+    Orange,
+    Pink,
+    Cyan,
+    White,
     Blank,
 }
 
@@ -23,7 +28,12 @@ fn from(led_color: &Led) -> Color {
         Led::Red => Color::Red,
         Led::Green => Color::Green,
         Led::Blue => Color::Blue,
-        Led::Blank => Color::Three(0x00, 0x00, 0x00),
+        Led::Yellow => Color::Three(255, 255, 0),
+        Led::Orange => Color::Three(255, 165, 0),
+        Led::Pink => Color::Three(255, 192, 203),
+        Led::Cyan => Color::Three(0, 255, 255),
+        Led::White => Color::Three(255, 255, 255),
+        Led::Blank => Color::Three(0, 0, 00),
     }
 }
 
