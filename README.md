@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 3. At the end we call `notification.notify_success()` (or `notification.notify_failure()`) which
    changes the color of LED to green (or red).
 
-The colors can be changed:
+Supported colors:
 ```rust
 use transition::Led;
 
