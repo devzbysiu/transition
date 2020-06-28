@@ -19,8 +19,8 @@
 //!
 //! fn main() -> Result<(), Box<dyn Error>> {
 //!     let notifier = Transition::new(&[Led::Blue, Led::Blank]) // pending state
-//!         .on_success(Led::Green)
-//!         .on_failure(Led::Red)
+//!         .on_success(&Led::Green)
+//!         .on_failure(&Led::Red)
 //!         .start()?;
 //!
 //!     // your code here, e.g.:

@@ -43,8 +43,8 @@ impl Transition {
     pub fn new(colors: &[Led]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
-            failure_msg: Arc::new(ColorMessage::new(Led::Red)),
-            success_msg: Arc::new(ColorMessage::new(Led::Green)),
+            failure_msg: Arc::new(ColorMessage::new(&Led::Red)),
+            success_msg: Arc::new(ColorMessage::new(&Led::Green)),
         }
     }
 
@@ -100,14 +100,14 @@ impl Transition {
 
     /// Allows to override success color.
     #[must_use]
-    pub fn on_success(mut self, color: Led) -> Self {
+    pub fn on_success(mut self, color: &Led) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
         self
     }
 
     /// Allows to override failure color.
     #[must_use]
-    pub fn on_failure(mut self, color: Led) -> Self {
+    pub fn on_failure(mut self, color: &Led) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
         self
     }

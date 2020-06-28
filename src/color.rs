@@ -1,8 +1,10 @@
 use blinkrs::Color;
+use serde::{Deserialize, Serialize};
 
 /// Represents the color of the Led.
 #[allow(missing_docs)]
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum Led {
     Red,
     Green,
