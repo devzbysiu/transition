@@ -44,5 +44,8 @@ mod transition;
 
 pub use crate::color::Led;
 pub use crate::transition::Transition;
+use doc_comment::doctest;
 pub use error::TransitionErr;
 pub use notifier::Notifier;
+
+doctest!("../README.md");

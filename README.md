@@ -49,14 +49,21 @@ You simply:
   ```
 2. Wrap your code with transition library:
   ```rust
-  // start notification
-  let notification = Transition::new(&["blue", "white"]).start()?;
+  use transition::{Transition, Led};
+  use std::error::Error;
 
-  // our example code
-  println!("executing time consuming task");
+  fn main() -> Result<(), Box<dyn Error>> {
+      // start notification
+      let notification = Transition::new(&[Led::Blue, Led::Blank]).start()?;
 
-  // task finished with success
-  notification.notify_success();
+      // our example code
+      println!("executing time consuming task");
+
+      // task finished with success
+      notification.notify_success();
+
+      Ok(())
+  }
   ```
 
 #### What does it do?
@@ -66,9 +73,12 @@ You simply:
 3. At the end we call `notification.notify_success()` (or `notification.notify_failure()`) which
    changes the color of LED to green (or red). The colors can be changed:
    ```rust
-   let transition = Transition::new(&["blue", "white"])
-      .on_success("green")
-      .on_failure("red");
+   use transition::Led;
+   use transition::Transition;
+
+   let transition = Transition::new(&[Led::Blue, Led::Blank])
+      .on_success(&Led::Green)
+      .on_failure(&Led::Red);
    ```
 
 # <p id="demo">Demo</p>
