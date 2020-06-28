@@ -15,7 +15,7 @@ use std::thread::JoinHandle;
 /// use std::{error::Error, time::Duration, thread};
 ///
 /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
-/// // blinks using colors blue - white interchangeably
+/// // blinks using color blue
 /// thread::sleep(Duration::from_secs(1));
 /// notifier.notify_failure();
 /// # Ok::<(), Box<dyn Error>>(())
