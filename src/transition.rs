@@ -23,7 +23,7 @@ impl Transition {
     /// Creates new instance of `Transition` with specified colors for "pending" state.
     ///
     /// Passed colors will be used between calls of
-    /// [start()](struct.Transition.html#method.start) and
+    /// [`start`](struct.Transition.html#method.start) and
     /// [`notify_success`](../struct.Notifier.html#method.notify_success) (or
     /// [`notify_failure`](../struct.Notifier.html#method.notify_failure)) to visualise pendig task
     /// execution.
