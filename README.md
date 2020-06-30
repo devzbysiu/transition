@@ -2,27 +2,27 @@
 
   <h1><code>transition</code></h1>
 
-  <p>
+  <h3>
     <strong>LED notification made easy</strong>
-  </p>
+  </h3>
 
   <p>
     <img src="https://github.com/devzbysiu/transition/workflows/Main/badge.svg" alt="Build status" />
     <a href="https://crates.io/crates/transition">
-      <img src="https://img.shields.io/crates/v/transition?color=%2388C0D0&logoColor=%234C566A&style=flat-square" alt="Crates.io version" />
+      <img src="https://img.shields.io/crates/v/transition?style=for-the-badge" alt="Crates.io version" />
     </a>
     <a href="https://codecov.io/gh/devzbysiu/transition">
-      <img src="https://img.shields.io/codecov/c/github/devzbysiu/transition?color=%2388C0D0&logoColor=%234C566A&style=flat-square&token=bfdc4b9d55534910ae48fba0b8e984d0" alt="Code coverage"/>
+      <img src="https://img.shields.io/codecov/c/github/devzbysiu/transition?style=for-the-badge&token=bfdc4b9d55534910ae48fba0b8e984d0" alt="Code coverage"/>
     </a>
     <a href="https://crates.io/crates/transition">
-      <img src="https://img.shields.io/crates/l/transition?color=%2388C0D0&logoColor=%234C566A&style=flat-square" alt="License"/>
+      <img src="https://img.shields.io/crates/l/transition?style=for-the-badge" alt="License"/>
     </a>
     <a href="https://docs.rs/transition">
-      <img src="https://img.shields.io/badge/docs-latest-blue.svg?color=%2388C0D0&logoColor=%234C566A&style=flat-square" alt="docs.rs docs" />
+      <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=for-the-badge" alt="docs.rs docs" />
     </a>
   </p>
 
-  <h4>
+  <h3>
     <a href="#about">About</a>
     <span> | </span>
     <a href="#demo">Demo</a>
@@ -34,7 +34,7 @@
     <a href="#contribution">Contribution</a>
   </h3>
 
-  <sub>Built with 🦀</sub>
+  <sub><h4>Built with 🦀</h4></sub>
 </div>
 
 # <p id="about">About</p>
