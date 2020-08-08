@@ -45,8 +45,8 @@ impl Transition {
     pub fn new(colors: &[Led]) -> Self {
         Self {
             task: Arc::new(BlinkTask::new(colors)),
-            failure_msg: Arc::new(ColorMessage::new(Led::Red)),
-            success_msg: Arc::new(ColorMessage::new(Led::Green)),
+            failure_msg: Arc::new(ColorMessage::new(&Led::Red)),
+            success_msg: Arc::new(ColorMessage::new(&Led::Green)),
         }
     }
 
@@ -124,7 +124,7 @@ impl Transition {
     /// # }
     /// ```
     #[must_use]
-    pub fn on_success(mut self, color: Led) -> Self {
+    pub fn on_success(mut self, color: &Led) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
         self
     }
@@ -142,7 +142,7 @@ impl Transition {
     /// # }
     /// ```
     #[must_use]
-    pub fn on_failure(mut self, color: Led) -> Self {
+    pub fn on_failure(mut self, color: &Led) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
         self
     }
@@ -152,8 +152,8 @@ impl Default for Transition {
     fn default() -> Self {
         Self {
             task: Arc::new(BlinkTask::new(&[Led::Blue, Led::Blank])),
-            failure_msg: Arc::new(ColorMessage::new(Led::Red)),
-            success_msg: Arc::new(ColorMessage::new(Led::Green)),
+            failure_msg: Arc::new(ColorMessage::new(&Led::Red)),
+            success_msg: Arc::new(ColorMessage::new(&Led::Green)),
         }
     }
 }
