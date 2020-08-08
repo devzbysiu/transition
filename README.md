@@ -88,9 +88,15 @@ match color {
 
 ```
 
+#### See <a href="https://github.com/devzbysiu/transition/tree/master/examples">examples</a> for more
+
 # <p id="demo">Demo</p>
 
-##  -- TODO
+<center>
+
+  ![Demo GIF](./res/demo.gif)
+
+</center>
 
 # <p id="installation">Installation</p>
 
