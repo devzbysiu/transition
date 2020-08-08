@@ -4,7 +4,7 @@ use blinkrs::Blinkers;
 use blinkrs::Message as BlinkMsg;
 use std::time::Duration;
 
-pub trait Message: Send + Sync {
+pub(crate) trait Message: Send + Sync {
     fn send(&self) -> Result<(), TransitionErr>;
 }
 
