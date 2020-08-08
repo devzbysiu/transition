@@ -32,11 +32,14 @@ impl Transition {
     /// [`on_failure`](struct.Transition.html#method.on_failure) accordingly.
     ///
     /// # Example:
-    ///
     /// ```
+    /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};
     ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
     /// let transition = Transition::new(&[Led::Blue, Led::Blank]);
+    /// # Ok(())
+    /// # }
     /// ```
     #[must_use]
     pub fn new(colors: &[Led]) -> Self {
@@ -51,6 +54,17 @@ impl Transition {
     ///
     /// The transition is started in a separate thread. As a result, you get
     /// [Notifier](../struct.Notifier) struct.
+    ///
+    /// # Example:
+    /// ```
+    /// # use std::error::Error;
+    /// use crate::transition::{Transition, Led};
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     ///
     /// # Errors
     ///
@@ -98,6 +112,17 @@ impl Transition {
     }
 
     /// Allows to override success color.
+    ///
+    /// # Example:
+    /// ```
+    /// # use std::error::Error;
+    /// use crate::transition::{Transition, Led};
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let transition = Transition::default().on_success(Led::Orange);
+    /// # Ok(())
+    /// # }
+    /// ```
     #[must_use]
     pub fn on_success(mut self, color: Led) -> Self {
         self.success_msg = Arc::new(ColorMessage::new(color));
@@ -105,6 +130,17 @@ impl Transition {
     }
 
     /// Allows to override failure color.
+    ///
+    /// # Example:
+    /// ```
+    /// # use std::error::Error;
+    /// use crate::transition::{Transition, Led};
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let transition = Transition::default().on_failure(Led::Cyan);
+    /// # Ok(())
+    /// # }
+    /// ```
     #[must_use]
     pub fn on_failure(mut self, color: Led) -> Self {
         self.failure_msg = Arc::new(ColorMessage::new(color));
@@ -136,7 +172,6 @@ mod test {
     }
 
     #[test]
-    #[allow(non_upper_case_globals)]
     fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionErr> {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
@@ -146,7 +181,6 @@ mod test {
     }
 
     #[test]
-    #[allow(non_upper_case_globals)]
     fn test_task_was_executed_after_transition_start() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, _, _) = transition_with_spies();
@@ -159,7 +193,6 @@ mod test {
     }
 
     #[test]
-    #[allow(non_upper_case_globals)]
     fn test_failure_msg_was_sent_when_failure_notified() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
@@ -175,7 +208,6 @@ mod test {
     }
 
     #[test]
-    #[allow(non_upper_case_globals)]
     fn test_success_msg_was_sent_when_success_notified() -> Result<(), TransitionErr> {
         init_logging();
         let (transition, task, failure_msg, success_msg) = transition_with_spies();
