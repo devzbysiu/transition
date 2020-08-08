@@ -100,11 +100,11 @@ match color {
 
 # <p id="installation">Installation</p>
 
-Add
+Add as a dependency to your `Cargo.toml`:
 ```toml
+[dependencies]
 transition = "0.1.0"
 ```
-to your `Cargo.toml`.
 
 # <p id="license">License</p>
 

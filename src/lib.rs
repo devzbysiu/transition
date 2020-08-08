@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![doc(html_root_url = "https://docs.rs/transition/0.1.0")]
 
 //! This crate allows to programmatically control LED light - blink(1).
 //! The purpose is to be able to show the status of your task by "wrapping" all it's
@@ -19,8 +20,8 @@
 //!
 //! fn main() -> Result<(), Box<dyn Error>> {
 //!     let notifier = Transition::new(&[Led::Blue, Led::Blank]) // pending state
-//!         .on_success(Led::Green)
-//!         .on_failure(Led::Red)
+//!         .on_success(&Led::Green)
+//!         .on_failure(&Led::Red)
 //!         .start()?;
 //!
 //!     // your code here, e.g.:

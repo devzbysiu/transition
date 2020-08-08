@@ -119,7 +119,7 @@ impl Transition {
     /// use crate::transition::{Transition, Led};
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let transition = Transition::default().on_success(Led::Orange);
+    /// let transition = Transition::default().on_success(&Led::Orange);
     /// # Ok(())
     /// # }
     /// ```
@@ -137,7 +137,7 @@ impl Transition {
     /// use crate::transition::{Transition, Led};
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let transition = Transition::default().on_failure(Led::Cyan);
+    /// let transition = Transition::default().on_failure(&Led::Cyan);
     /// # Ok(())
     /// # }
     /// ```
