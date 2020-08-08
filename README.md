@@ -39,7 +39,7 @@
 
 # <p id="about">About</p>
 
-This library allows you control the state of code execution using blink(1) LED notifier.
+This library allows you control the state of code execution using <a href="https://blink1.thingm.com/">blink(1)</a> LED notifier.
 
 You simply wrap the code you want to track with transition library:
 ```rust
