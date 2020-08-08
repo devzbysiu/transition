@@ -4,14 +4,17 @@ use std::time::Duration;
 use transition::Transition;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // start notification
+    // transition finished with success
     let notification = Transition::default().start()?;
+    thread::sleep(Duration::from_secs(5));
+    notification.notify_success()?;
 
-    // our example code
     thread::sleep(Duration::from_secs(5));
 
-    // task finished with success
-    notification.notify_success()?;
+    // transition finished with failure
+    let notification = Transition::default().start()?;
+    thread::sleep(Duration::from_secs(5));
+    notification.notify_failure()?;
 
     Ok(())
 }
