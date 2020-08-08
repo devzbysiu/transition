@@ -43,18 +43,20 @@ This library allows you control the state of code execution using <a href="https
 
 You simply wrap the code you want to track with transition library:
 ```rust
-use transition::{Transition, Led};
 use std::error::Error;
+use std::thread;
+use std::time::Duration;
+use transition::Transition;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // start notification
-    let notification = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    let notification = Transition::default().start()?;
 
     // our example code
-    println!("executing time consuming task");
+    thread::sleep(Duration::from_secs(5));
 
     // task finished with success
-    notification.notify_success();
+    notification.notify_success()?;
 
     Ok(())
 }
