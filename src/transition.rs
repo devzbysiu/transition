@@ -31,7 +31,7 @@ impl Transition {
     /// success and failure colors using [`on_success`](struct.Transition.html#method.on_success) and
     /// [`on_failure`](struct.Transition.html#method.on_failure) accordingly.
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};
@@ -55,7 +55,7 @@ impl Transition {
     /// The transition is started in a separate thread. As a result, you get
     /// [Notifier](../struct.Notifier) struct.
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};
@@ -113,7 +113,7 @@ impl Transition {
 
     /// Allows to override success color.
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};
@@ -131,7 +131,7 @@ impl Transition {
 
     /// Allows to override failure color.
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};

@@ -8,17 +8,18 @@ use std::thread::JoinHandle;
 /// After you starts the blinking via [start()](./transition/struct.Transition.html#method.start),
 /// you can end the blinking process via this struct.
 ///
-/// # Example:
-///
+/// # Example
 /// ```
 /// use transition::{Transition, Notifier, Led};
-/// use std::{error::Error, time::Duration, thread};
+/// # use std::{error::Error, time::Duration, thread};
 ///
+/// # fn main() -> Result<(), Box<dyn Error>> {
 /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
 /// // blinks using color blue
 /// thread::sleep(Duration::from_secs(1));
 /// notifier.notify_failure();
-/// # Ok::<(), Box<dyn Error>>(())
+/// # Ok(())
+/// # }
 /// ```
 pub struct Notifier {
     sender: Sender<MsgType>,
@@ -41,6 +42,20 @@ impl Notifier {
     ///
     /// Stops the thread which is responsible for blinking of the LED.
     ///
+    /// # Example
+    /// ```
+    /// use transition::{Transition, Notifier, Led};
+    /// # use std::{error::Error, time::Duration, thread};
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// // blinks using color blue
+    /// thread::sleep(Duration::from_secs(1));
+    /// notifier.notify_success();
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     /// # Errors
     ///
     /// This method sends message to blinking thread using crossbeam channel.
@@ -61,12 +76,25 @@ impl Notifier {
     ///
     /// Stops the thread which is responsible for blinking of the LED.
     ///
+    /// # Example
+    /// ```
+    /// use transition::{Transition, Notifier, Led};
+    /// # use std::{error::Error, time::Duration, thread};
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// // blinks using color blue
+    /// thread::sleep(Duration::from_secs(1));
+    /// notifier.notify_failure();
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     /// # Errors
     ///
     /// This method sends message to blinking thread using crossbeam channel.
     /// If any error related with sending this message will occur, then this method returns
     /// [`TransitionErr`](enum.TransitionErr.html).
-
     pub fn notify_failure(self) -> Result<(), TransitionErr> {
         debug!("notifying about failure");
         self.sender.send(MsgType::Failure)?;
