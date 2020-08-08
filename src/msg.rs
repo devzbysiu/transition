@@ -14,7 +14,7 @@ pub(crate) struct ColorMessage {
 }
 
 impl ColorMessage {
-    pub(crate) fn new(color: &Led) -> Self {
+    pub(crate) fn new(color: Led) -> Self {
         let blinkers: Blinkers =
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
         Self {
@@ -31,6 +31,6 @@ impl Message for ColorMessage {
     }
 }
 
-fn color_msg(color: &Led) -> BlinkMsg {
+fn color_msg(color: Led) -> BlinkMsg {
     BlinkMsg::Fade(color.into(), Duration::from_millis(500))
 }
