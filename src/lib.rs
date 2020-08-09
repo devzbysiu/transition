@@ -50,3 +50,37 @@ pub use error::TransitionErr;
 pub use notifier::Notifier;
 
 doctest!("../README.md");
+
+#[cfg(test)]
+mod test {
+    use crate::testutils::utils::init_logging;
+    use crate::Transition;
+    use crate::TransitionErr;
+    use log::debug;
+    use std::time::Duration;
+
+    #[test]
+    fn test_clone_of_transition() -> Result<(), TransitionErr> {
+        init_logging();
+        let transition = Transition::default();
+        let other_transition = transition.clone();
+        let notifier = transition.start()?;
+        std::thread::sleep(Duration::from_millis(1000));
+        notifier.notify_failure()?;
+
+        let notifier = other_transition.start()?;
+        std::thread::sleep(Duration::from_millis(1000));
+        notifier.notify_success()?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_debug_of_transition() -> Result<(), TransitionErr> {
+        init_logging();
+        let transition = Transition::default();
+        debug!("testing Debug of transition: {:#?}", transition);
+
+        Ok(())
+    }
+}

@@ -13,6 +13,7 @@ use std::sync::Arc;
 use std::thread;
 
 /// Main structure. Represents colors of task state (pending, successfull, failed). Allows to start the transition.
+#[derive(Debug, Clone)]
 pub struct Transition {
     task: Arc<dyn Task>,
     failure_msg: Arc<dyn Message>,
@@ -161,15 +162,12 @@ impl Default for Transition {
 #[cfg(test)]
 mod test {
     use crate::error::TransitionErr;
+    use crate::testutils::utils::init_logging;
     use crate::testutils::utils::MessageSpy;
     use crate::testutils::utils::TaskSpy;
     use crate::transition::Transition;
     use std::sync::Arc;
     use std::time::Duration;
-
-    fn init_logging() {
-        let _ = env_logger::builder().is_test(true).try_init();
-    }
 
     #[test]
     fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionErr> {

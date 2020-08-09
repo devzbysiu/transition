@@ -2,10 +2,18 @@ use crate::color::Led;
 use crate::error::TransitionErr;
 use blinkrs::Blinkers;
 use blinkrs::Message as BlinkMsg;
+use std::fmt::Debug;
 use std::time::Duration;
 
 pub(crate) trait Task: Send + Sync {
     fn execute(&self) -> Result<(), TransitionErr>;
+    fn get(&self) -> &[BlinkMsg];
+}
+
+impl Debug for dyn Task {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "task colors: {:#?}", self.get())
+    }
 }
 
 pub(crate) struct BlinkTask {
@@ -40,5 +48,9 @@ impl Task for BlinkTask {
     fn execute(&self) -> Result<(), TransitionErr> {
         self.play_transition();
         Ok(())
+    }
+
+    fn get(&self) -> &[BlinkMsg] {
+        &self.transition
     }
 }

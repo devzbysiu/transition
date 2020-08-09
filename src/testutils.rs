@@ -3,6 +3,7 @@ pub(crate) mod utils {
     use crate::error::TransitionErr;
     use crate::msg::Message;
     use crate::task::Task;
+    use blinkrs::Message as BlinkMsg;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering;
 
@@ -27,6 +28,10 @@ pub(crate) mod utils {
             self.task_executed.store(true, Ordering::SeqCst);
             Ok(())
         }
+
+        fn get(&self) -> &[BlinkMsg] {
+            unimplemented!("not needed here")
+        }
     }
 
     pub(crate) struct MessageSpy {
@@ -50,5 +55,13 @@ pub(crate) mod utils {
             self.message_sent.store(true, Ordering::SeqCst);
             Ok(())
         }
+
+        fn get(&self) -> BlinkMsg {
+            unimplemented!("not needed here")
+        }
+    }
+
+    pub(crate) fn init_logging() {
+        let _ = env_logger::builder().is_test(true).try_init();
     }
 }
