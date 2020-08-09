@@ -83,4 +83,13 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn test_debug_of_notifier() -> Result<(), TransitionErr> {
+        init_logging();
+        let notifier = Transition::default().start()?;
+        debug!("testing Debug of notifier: {:#?}", notifier);
+
+        Ok(())
+    }
 }

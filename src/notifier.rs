@@ -21,6 +21,7 @@ use std::thread::JoinHandle;
 /// # Ok(())
 /// # }
 /// ```
+#[derive(Debug)]
 pub struct Notifier {
     sender: Sender<MsgType>,
     handle: JoinHandle<Result<(), TransitionErr>>,
