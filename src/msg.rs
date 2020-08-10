@@ -50,7 +50,7 @@ impl Clone for ColorMessage {
             Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
         Self {
             blinkers,
-            color_msg: self.color_msg.clone(),
+            color_msg: self.color_msg,
         }
     }
 }
