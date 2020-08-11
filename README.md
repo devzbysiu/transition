@@ -106,6 +106,8 @@ Add as a dependency to your `Cargo.toml`:
 transition = "0.1.0"
 ```
 
+**Make sure that you have correct access rights to access blink(1) device. See udev rules [here](https://github.com/todbot/blink1/blob/master/linux/51-blink1.rules).**
+
 # <p id="license">License</p>
 
 This project is licensed under either of
