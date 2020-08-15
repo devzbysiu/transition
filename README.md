@@ -49,7 +49,7 @@ use std::time::Duration;
 use transition::Transition;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // start notification
+    // start transition
     let notification = Transition::default().start()?;
 
     // our example code
