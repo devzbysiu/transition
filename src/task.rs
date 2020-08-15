@@ -23,30 +23,30 @@ pub(crate) struct BlinkTask {
 
 impl BlinkTask {
     #[must_use]
-    pub fn new(colors: &[Led]) -> Self {
+    pub fn new(colors: &[Led]) -> Result<Self, TransitionErr> {
         let mut transition = Vec::new();
-        let blinkers: Blinkers =
-            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
+        let blinkers: Blinkers = Blinkers::new()?;
         for color in colors {
             transition.push(BlinkMsg::Fade(color.into(), Duration::from_millis(500)));
         }
-        Self {
+        Ok(Self {
             blinkers,
             transition,
-        }
+        })
     }
 
-    fn play_transition(&self) {
+    fn play_transition(&self) -> Result<(), TransitionErr> {
         for &message in &self.transition {
-            self.blinkers.send(message).unwrap();
+            self.blinkers.send(message)?;
             std::thread::sleep(Duration::from_millis(500));
         }
+        Ok(())
     }
 }
 
 impl Task for BlinkTask {
     fn execute(&self) -> Result<(), TransitionErr> {
-        self.play_transition();
+        self.play_transition()?;
         Ok(())
     }
 

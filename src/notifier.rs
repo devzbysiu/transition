@@ -14,7 +14,7 @@ use std::thread::JoinHandle;
 /// # use std::{error::Error, time::Duration, thread};
 ///
 /// # fn main() -> Result<(), Box<dyn Error>> {
-/// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+/// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank])?.start()?;
 /// // blinks using color blue
 /// thread::sleep(Duration::from_secs(1));
 /// notifier.notify_failure();
@@ -49,7 +49,7 @@ impl Notifier {
     /// # use std::{error::Error, time::Duration, thread};
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank])?.start()?;
     /// // blinks using color blue
     /// thread::sleep(Duration::from_secs(1));
     /// notifier.notify_success();
@@ -83,7 +83,7 @@ impl Notifier {
     /// # use std::{error::Error, time::Duration, thread};
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// let notifier: Notifier = Transition::new(&[Led::Blue, Led::Blank])?.start()?;
     /// // blinks using color blue
     /// thread::sleep(Duration::from_secs(1));
     /// notifier.notify_failure();

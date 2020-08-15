@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Led::Blank,
         Led::Orange,
         Led::Blank,
-    ])
+    ])?
     .start()?;
 
     thread::sleep(Duration::from_secs(5));

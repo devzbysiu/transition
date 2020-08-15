@@ -43,12 +43,12 @@ impl Transition {
     /// # }
     /// ```
     #[must_use]
-    pub fn new(colors: &[Led]) -> Self {
-        Self {
-            task: Arc::new(BlinkTask::new(colors)),
+    pub fn new(colors: &[Led]) -> Result<Self, TransitionErr> {
+        Ok(Self {
+            task: Arc::new(BlinkTask::new(colors)?),
             failure_msg: Arc::new(ColorMessage::new(&Led::Red)),
             success_msg: Arc::new(ColorMessage::new(&Led::Green)),
-        }
+        })
     }
 
     /// Starts the transition.
@@ -62,7 +62,7 @@ impl Transition {
     /// use crate::transition::{Transition, Led};
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let notifier = Transition::new(&[Led::Blue, Led::Blank]).start()?;
+    /// let notifier = Transition::new(&[Led::Blue, Led::Blank])?.start()?;
     /// # Ok(())
     /// # }
     /// ```
@@ -152,7 +152,9 @@ impl Transition {
 impl Default for Transition {
     fn default() -> Self {
         Self {
-            task: Arc::new(BlinkTask::new(&[Led::Blue, Led::Blank])),
+            task: Arc::new(
+                BlinkTask::new(&[Led::Blue, Led::Blank]).expect("failed to create blink task"),
+            ),
             failure_msg: Arc::new(ColorMessage::new(&Led::Red)),
             success_msg: Arc::new(ColorMessage::new(&Led::Green)),
         }
