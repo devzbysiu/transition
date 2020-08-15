@@ -24,8 +24,7 @@ pub(crate) struct ColorMessage {
 
 impl ColorMessage {
     pub(crate) fn new(color: &Led) -> Self {
-        let blinkers: Blinkers =
-            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
+        let blinkers: Blinkers = Blinkers::new().expect("could not find device");
         Self {
             color_msg: color_msg(color),
             blinkers,
@@ -46,8 +45,7 @@ impl Message for ColorMessage {
 
 impl Clone for ColorMessage {
     fn clone(&self) -> Self {
-        let blinkers: Blinkers =
-            Blinkers::new().unwrap_or_else(|_| panic!("Could not find device"));
+        let blinkers: Blinkers = Blinkers::new().expect("could not find device");
         Self {
             blinkers,
             color_msg: self.color_msg,

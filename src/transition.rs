@@ -33,6 +33,7 @@ impl Transition {
     /// [`on_failure`](struct.Transition.html#method.on_failure) accordingly.
     ///
     /// # Example
+    ///
     /// ```
     /// # use std::error::Error;
     /// use crate::transition::{Transition, Led};
@@ -42,7 +43,11 @@ impl Transition {
     /// # Ok(())
     /// # }
     /// ```
-    #[must_use]
+    ///
+    /// # Errors
+    ///
+    /// If there will be issue with connecting to blink(1) device,
+    /// an error variant will be returned.
     pub fn new(colors: &[Led]) -> Result<Self, TransitionErr> {
         Ok(Self {
             task: Arc::new(BlinkTask::new(colors)?),

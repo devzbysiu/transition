@@ -22,7 +22,6 @@ pub(crate) struct BlinkTask {
 }
 
 impl BlinkTask {
-    #[must_use]
     pub fn new(colors: &[Led]) -> Result<Self, TransitionErr> {
         let mut transition = Vec::new();
         let blinkers: Blinkers = Blinkers::new()?;
