@@ -10,6 +10,8 @@ jobs:
     name: Publishing to Cargo
     runs-on: ubuntu-latest
     steps:
+      - name: Install libusb-1.0
+        run: sudo apt-get install libusb-1.0
       - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
