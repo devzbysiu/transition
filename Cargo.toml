@@ -13,13 +13,13 @@ documentation = "https://docs.rs/transition"
 edition = "2018"
 
 [dependencies]
-blinkrs = "0.2.1"
+blinkrs = "1.0.0"
 serde = { version = "1.0", features = ["derive"] }
-crossbeam-channel = "0.4.0"
+crossbeam-channel = "0.5.0"
 log = "0.4.8"
 thiserror = "1.0.9"
 doc-comment = "0.3.3"
 
 [dev-dependencies]
-env_logger = "0.7.1"
+env_logger = "0.8.1"
 version-sync = "0.9.1"
