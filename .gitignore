@@ -2,3 +2,4 @@
 **/*.rs.bk
 .blincrc
 .development.env
+tarpaulin-report.html
