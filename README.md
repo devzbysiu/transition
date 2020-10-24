@@ -3,7 +3,7 @@
   <h1><code>transition</code></h1>
 
   <h3>
-    <strong>LED notification made easy</strong>
+    <strong>LED notifications made easy</strong>
   </h3>
 
   <p>
