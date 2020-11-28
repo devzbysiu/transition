@@ -5,7 +5,7 @@ use std::thread::JoinHandle;
 
 /// Allows to control blinking of the LED after the transition starts.
 ///
-/// After you starts the blinking via [start()](./transition/struct.Transition.html#method.start),
+/// After you starts the blinking via [start()](crate::Transition::start()),
 /// you can end the blinking process via this struct.
 ///
 /// # Example
@@ -38,7 +38,7 @@ impl Notifier {
     /// Finishes the transition with success.
     ///
     /// Changes the color of the LED, to the one set with
-    /// [`on_success`](transition/struct.Transition.html#method.on_success). If not set, the
+    /// [`on_success`](crate::Transition::on_success()). If not set, the
     /// default is set to *green*.
     ///
     /// Stops the thread which is responsible for blinking of the LED.
@@ -61,7 +61,7 @@ impl Notifier {
     ///
     /// This method sends message to blinking thread using crossbeam channel.
     /// If any error related with sending this message will occur, then this method returns
-    /// [`TransitionErr`](enum.TransitionErr.html).
+    /// [`TransitionErr`].
     pub fn notify_success(self) -> Result<(), TransitionErr> {
         debug!("notifying about success");
         self.sender.send(MsgType::Success)?;
@@ -72,7 +72,7 @@ impl Notifier {
     /// Finishes the transition with failure.
     ///
     /// Changes the color of the LED, to the one set with
-    /// [`on_failure`](./transition/struct.Transition.html#method.on_failure). If not set, the
+    /// [`on_failure`](crate::Transition::on_failure()). If not set, the
     /// default is set to *red*.
     ///
     /// Stops the thread which is responsible for blinking of the LED.
@@ -95,7 +95,7 @@ impl Notifier {
     ///
     /// This method sends message to blinking thread using crossbeam channel.
     /// If any error related with sending this message will occur, then this method returns
-    /// [`TransitionErr`](enum.TransitionErr.html).
+    /// [`TransitionErr`].
     pub fn notify_failure(self) -> Result<(), TransitionErr> {
         debug!("notifying about failure");
         self.sender.send(MsgType::Failure)?;
@@ -108,11 +108,11 @@ impl Notifier {
 /// LED.
 #[derive(Debug)]
 pub enum MsgType {
-    /// Send when [notify_success](./transition/struct.Transition.html#method.notify_success) is
+    /// Send when [notify_success](transition::Transition::notify_success()) is
     /// called.
     Success,
 
-    /// Send when [notify_failure](./transition/struct.Transition.html#method.notify_failure) is
+    /// Send when [notify_failure](transition::Transition::notify_failure()) is
     /// called.
     Failure,
 }
