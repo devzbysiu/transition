@@ -13,8 +13,7 @@ documentation = "https://docs.rs/transition"
 edition = "2018"
 
 [dependencies]
-# TODO: this should be changed after merge / release of https://github.com/dadleyy/blinkrs/pull/13/files
-blinkrs = { git = "https://github.com/devzbysiu/blinkrs", branch = "use-rusb-instead-of-unmaintained-libusb" }
+blinkrs = "1.0.1"
 serde = { version = "1.0", features = ["derive"] }
 crossbeam-channel = "0.5.0"
 log = "0.4.8"

@@ -40,8 +40,9 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "blinkrs"
-version = "1.0.0"
-source = "git+https://github.com/devzbysiu/blinkrs?branch=use-rusb-instead-of-unmaintained-libusb#43914438e3f86fab7005d290c3e28b0cc5e2a505"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26f1ebbc70432a7b04b3fcd8b592a4d8afaf20a51d6b00512b45a87b3b068429"
 dependencies = [
  "rusb",
 ]
