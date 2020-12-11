@@ -16,17 +16,14 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v2
 
-    - name: Clear cargo cache # TODO: this is the workaround for https://github.com/xd009642/tarpaulin/issues/517
-      run: cargo clean
-
-    # - uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       ~/.cargo/registry
-    #       ~/.cargo/git
-    #       ./target
-    #       !./target/tarpaulin
-    #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ./target
+          !./target/tarpaulin
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Run cargo-make
       uses: actions-rs/toolchain@v1
