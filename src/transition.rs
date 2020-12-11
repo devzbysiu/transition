@@ -177,12 +177,11 @@ mod test {
     use std::time::Duration;
 
     #[test]
-    fn test_task_not_executed_when_transition_not_started() -> Result<(), TransitionErr> {
+    fn test_task_not_executed_when_transition_not_started() {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
 
         assert_eq!(false, task.executed(), "Test task was executed");
-        Ok(())
     }
 
     #[test]

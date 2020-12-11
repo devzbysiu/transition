@@ -76,12 +76,10 @@ mod test {
     }
 
     #[test]
-    fn test_debug_of_transition() -> Result<(), TransitionErr> {
+    fn test_debug_of_transition() {
         init_logging();
         let transition = Transition::default();
         debug!("testing Debug of transition: {:#?}", transition);
-
-        Ok(())
     }
 
     #[test]
