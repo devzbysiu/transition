@@ -28,7 +28,7 @@ jobs:
     - name: Run cargo-make
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly
         override: true
     - uses: davidB/rust-cargo-make@v1
     - name: Run tests
