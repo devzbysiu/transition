@@ -17,6 +17,7 @@ impl Debug for dyn Message {
     }
 }
 
+#[derive(Debug)]
 pub(crate) struct ColorMessage {
     blinkers: Blinkers,
     color_msg: BlinkMsg,
@@ -55,4 +56,16 @@ impl Clone for ColorMessage {
 
 fn color_msg(color: &Led) -> BlinkMsg {
     BlinkMsg::Fade(color.into(), Duration::from_millis(500))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_debug_formatting() {
+        let msg: Box<dyn Message> = Box::new(ColorMessage::new(&Led::White));
+        let result = format!("{:?}", msg);
+        assert_eq!(result, "color of msg: Fade(\n    Three(\n        255,\n        255,\n        255,\n    ),\n    500ms,\n)");
+    }
 }

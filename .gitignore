@@ -3,3 +3,4 @@
 .blincrc
 .development.env
 tarpaulin-report.html
+cobertura.xml
