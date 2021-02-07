@@ -20,15 +20,16 @@ args = ["clippy", "--all-targets", "--all-features", "--", "-W", "clippy::pedant
 command = "cargo"
 args = ["build", "--release"]
 
-[tasks.coverage]
-clear = true
-command = "cargo"
-args = ["tarpaulin", "--ignore-tests", "-v", "--out", "Xml"]
+# TODO: this is a workaround for linking error https://github.com/xd009642/tarpaulin/issues/517
+# [tasks.coverage]
+# clear = true
+# command = "cargo"
+# args = ["tarpaulin", "--ignore-tests", "-v", "--out", "Xml"]
 
-[tasks.coverage-report]
-clear = true
-command = "cargo"
-args = ["tarpaulin", "--ignore-tests", "-v", "--out", "Html"]
+# [tasks.coverage-report]
+# clear = true
+# command = "cargo"
+# args = ["tarpaulin", "--ignore-tests", "-v", "--out", "Html"]
 
 
 [tasks.all]
@@ -40,4 +41,4 @@ dependencies = [
 
 [env]
 RUST_TEST_THREADS = 1
-CARGO_MAKE_COVERAGE_PROVIDER = "tarpaulin"
+# CARGO_MAKE_COVERAGE_PROVIDER = "tarpaulin" TODO: this is a workaround for linking error https://github.com/xd009642/tarpaulin/issues/517
