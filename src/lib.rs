@@ -1,5 +1,5 @@
 #![deny(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/transition/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/transition/0.1.1")]
 
 //! This crate allows to programmatically control LED light - blink(1).
 //! The purpose is to be able to show the status of your task by "wrapping" all it's

@@ -100,7 +100,7 @@ match color {
 Add as a dependency to your `Cargo.toml`:
 ```toml
 [dependencies]
-transition = "0.1.0"
+transition = "0.1.1"
 ```
 
 One of the dependency requires `libusb-1.0` to be installed. On Linux you can install it by running:
