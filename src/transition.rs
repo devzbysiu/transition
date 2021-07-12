@@ -181,7 +181,7 @@ mod test {
         init_logging();
         let (_, task, _, _) = transition_with_spies();
 
-        assert_eq!(false, task.executed(), "Test task was executed");
+        assert!(!task.executed(), "Test task was executed");
     }
 
     #[test]
@@ -192,7 +192,7 @@ mod test {
         transition.start()?;
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
 
-        assert_eq!(true, task.executed(), "Test task was executed");
+        assert!(task.executed(), "Test task was executed");
         Ok(())
     }
 
@@ -205,9 +205,9 @@ mod test {
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
         tx.notify_failure()?;
 
-        assert_eq!(true, task.executed(), "Test task was executed");
-        assert_eq!(true, failure_msg.msg_sent(), "Test failure WAS sent");
-        assert_eq!(false, success_msg.msg_sent(), "Test success NOT sent");
+        assert!(task.executed(), "Test task was executed");
+        assert!(failure_msg.msg_sent(), "Test failure WAS sent");
+        assert!(!success_msg.msg_sent(), "Test success NOT sent");
         Ok(())
     }
 
@@ -220,9 +220,9 @@ mod test {
         std::thread::sleep(Duration::from_millis(1000)); // allow transition to execute
         tx.notify_success()?;
 
-        assert_eq!(true, task.executed(), "Test task was executed");
-        assert_eq!(false, failure_msg.msg_sent(), "Test failure NOT sent");
-        assert_eq!(true, success_msg.msg_sent(), "Test success WAS sent");
+        assert!(task.executed(), "Test task was executed");
+        assert!(!failure_msg.msg_sent(), "Test failure NOT sent");
+        assert!(success_msg.msg_sent(), "Test success WAS sent");
         Ok(())
     }
 
