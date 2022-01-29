@@ -13,7 +13,7 @@ documentation = "https://docs.rs/transition"
 edition = "2021"
 
 [dependencies]
-blinkrs = "1.0.1"
+blinkrs = "2.0.0"
 serde = { version = "1.0", features = ["derive"] }
 crossbeam-channel = "0.5.0"
 log = "0.4.8"

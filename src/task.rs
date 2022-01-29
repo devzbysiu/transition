@@ -26,7 +26,11 @@ impl BlinkTask {
         let mut transition = Vec::new();
         let blinkers: Blinkers = Blinkers::new()?;
         for color in colors {
-            transition.push(BlinkMsg::Fade(color.into(), Duration::from_millis(500)));
+            transition.push(BlinkMsg::Fade(
+                color.into(),
+                Duration::from_millis(500),
+                None,
+            ));
         }
         Ok(Self {
             blinkers,
