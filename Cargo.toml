@@ -10,7 +10,7 @@ readme = "README.md"
 repository = "https://github.com/devzbysiu/transition"
 homepage = "https://github.com/devzbysiu/transition"
 documentation = "https://docs.rs/transition"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 blinkrs = "1.0.1"
