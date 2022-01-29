@@ -43,21 +43,22 @@ mod notifier;
 mod task;
 mod transition;
 
+use doc_comment::doctest;
+
 pub use crate::color::Led;
 pub use crate::transition::Transition;
 pub use error::TransitionErr;
 pub use notifier::Notifier;
+
+doctest!("../README.md");
 
 #[cfg(test)]
 mod test {
     use crate::testutils::utils::init_logging;
     use crate::Transition;
     use crate::TransitionErr;
-    use doc_comment::doctest;
     use log::debug;
     use std::time::Duration;
-
-    doctest!("../README.md");
 
     #[test]
     fn test_clone_of_transition() -> Result<(), TransitionErr> {
