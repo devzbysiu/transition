@@ -12,7 +12,7 @@
       <img src="https://img.shields.io/crates/v/transition?style=for-the-badge" alt="Crates.io version" />
     </a>
     <a href="https://codecov.io/gh/devzbysiu/transition">
-      <img src="https://img.shields.io/codecov/c/github/devzbysiu/transition?style=for-the-badge&token=f2339b3de9e44be0a902458a669c1160" alt="Code coverage"/>
+      <img src="https://img.shields.io/codecov/c/github/devzbysiu/transition?style=for-the-badge" alt="Code coverage"/>
     </a>
     <a href="https://crates.io/crates/transition">
       <img src="https://img.shields.io/crates/l/transition?style=for-the-badge" alt="License"/>
