@@ -4,3 +4,4 @@
 .development.env
 tarpaulin-report.html
 cobertura.xml
+.idea
