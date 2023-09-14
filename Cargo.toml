@@ -1,6 +1,6 @@
 [package]
 name = "transition"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Bartosz Zbytniewski <bartosz.zbytniewski.dev@gmail.com>"]
 description = "Allows to visualize the execution and result of code using LED light blink(1)"
 keywords = ["blink", "notify"]
